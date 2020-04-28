@@ -35,6 +35,16 @@ const meditationSchema = new mongoose.Schema({
  * Methods
  */
 meditationSchema.method({
+  transform() {
+    const transformed = {};
+    const fields = ['id', 'name', 'url', 'categories', 'instructor'];
+
+    fields.forEach((field) => {
+      transformed[field] = this[field];
+    });
+
+    return transformed;
+  },
 });
 
 /**
@@ -42,7 +52,14 @@ meditationSchema.method({
  */
 meditationSchema.statics = {
 
-
+  /**
+   * List all meditations
+   *
+   * @returns {Promise<Meditation[]>}
+   */
+  list() {
+    return this.find().exec();
+  },
 };
 
 /**
