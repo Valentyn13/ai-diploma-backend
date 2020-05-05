@@ -20,4 +20,20 @@ router
    */
   .get(controller.list);
 
+router.route('/all')
+/**
+   * @api {get} v1/meditations/all List ALL data - Meditations, Courses, Categories & Instructors
+   * @apiDescription Get a list of meditations, courses, categories & instructors
+   * @apiVersion 1.0.0
+   * @apiName ListAll
+   * @apiGroup Meditation
+   *
+   * @apiHeader {String} Authorization   User's access token
+   *
+   * @apiSuccess {Object} object contains all lists
+   *
+   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated users can access the data
+   */
+  .get(controller.listAll);
+
 module.exports = router;
