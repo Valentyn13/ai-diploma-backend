@@ -63,6 +63,6 @@ meditationSchema.statics = {
 };
 
 /**
- * @typedef User
+ * @typedef Meditation
  */
 module.exports = mongoose.model('Meditation', meditationSchema);

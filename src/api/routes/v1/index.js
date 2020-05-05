@@ -3,6 +3,9 @@ const userRoutes = require('./user.route');
 const authRoutes = require('./auth.route');
 const adminRoutes = require('./admin.route');
 const meditationRoutes = require('./meditation.route');
+const categoryRoutes = require('./category.route');
+const courseRoutes = require('./course.route');
+const instructorRoutes = require('./instructor.route');
 
 const router = express.Router();
 
@@ -20,5 +23,8 @@ router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 router.use('/admin', adminRoutes);
 router.use('/meditations', meditationRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/courses', courseRoutes);
+router.use('/instructors', instructorRoutes);
 
 module.exports = router;

@@ -25,6 +25,16 @@ const instructorSchema = new mongoose.Schema({
  * Methods
  */
 instructorSchema.method({
+  transform() {
+    const transformed = {};
+    const fields = ['id', 'name', 'info'];
+
+    fields.forEach((field) => {
+      transformed[field] = this[field];
+    });
+
+    return transformed;
+  },
 });
 
 /**
@@ -32,10 +42,17 @@ instructorSchema.method({
  */
 instructorSchema.statics = {
 
-
+  /**
+   * List all instructors
+   *
+   * @returns {Promise<Instructor[]>}
+   */
+  list() {
+    return this.find().exec();
+  },
 };
 
 /**
- * @typedef User
+ * @typedef Instructor
  */
 module.exports = mongoose.model('Instructor', instructorSchema);

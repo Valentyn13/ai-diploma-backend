@@ -24,6 +24,16 @@ const categorySchema = new mongoose.Schema({
  * Methods
  */
 categorySchema.method({
+  transform() {
+    const transformed = {};
+    const fields = ['id', 'name', 'info'];
+
+    fields.forEach((field) => {
+      transformed[field] = this[field];
+    });
+
+    return transformed;
+  },
 });
 
 /**
@@ -31,10 +41,18 @@ categorySchema.method({
  */
 categorySchema.statics = {
 
-
+  /**
+   * List all categories
+   *
+   * @returns {Promise<Category[]>}
+   */
+  list() {
+    return this.find().exec();
+  },
 };
 
+
 /**
- * @typedef User
+ * @typedef Category
  */
 module.exports = mongoose.model('Category', categorySchema);

@@ -15,7 +15,7 @@ const courseSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  meditation: [{
+  meditations: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Meditations',
   }],
@@ -33,6 +33,16 @@ const courseSchema = new mongoose.Schema({
  * Methods
  */
 courseSchema.method({
+  transform() {
+    const transformed = {};
+    const fields = ['id', 'name', 'info', 'meditations', 'instructor'];
+
+    fields.forEach((field) => {
+      transformed[field] = this[field];
+    });
+
+    return transformed;
+  },
 });
 
 /**
@@ -40,10 +50,18 @@ courseSchema.method({
  */
 courseSchema.statics = {
 
-
+  /**
+   * List all courses
+   *
+   * @returns {Promise<Course[]>}
+   */
+  list() {
+    return this.find().exec();
+  },
 };
 
+
 /**
- * @typedef User
+ * @typedef Course
  */
 module.exports = mongoose.model('Course', courseSchema);
