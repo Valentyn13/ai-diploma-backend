@@ -13,12 +13,14 @@ exports.initSchema = async (req, res, next) => {
     await Category.deleteMany({});
 
     const category1 = new Category();
-    category1.name = 'שינה';
+    category1.name = 'sleep';
+    category1.title = 'שינה';
     category1.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
     const savedCategory1 = await category1.save();
 
     const category2 = new Category();
-    category2.name = 'צבא';
+    category2.name = 'army';
+    category2.title = 'צבא';
     category2.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
     const savedCategory2 = await category2.save();
 

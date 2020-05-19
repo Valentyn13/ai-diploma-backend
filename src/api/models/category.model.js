@@ -11,6 +11,11 @@ const categorySchema = new mongoose.Schema({
     index: true,
     trim: true,
   },
+  title: {
+    type: String,
+    required: true,
+    maxlength: 128,
+  },
   info: {
     type: String,
     trim: true,
@@ -26,7 +31,7 @@ const categorySchema = new mongoose.Schema({
 categorySchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'name', 'info'];
+    const fields = ['id', 'name', 'title', 'info'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
