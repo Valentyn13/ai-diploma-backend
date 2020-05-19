@@ -45,6 +45,7 @@ exports.initSchema = async (req, res, next) => {
       category1.id,
     ];
     meditation1.instructor = instructor.id;
+    meditation1.duration = 200;
     const savedMeditation1 = await meditation1.save();
 
     const meditation2 = new Meditation();
@@ -54,11 +55,13 @@ exports.initSchema = async (req, res, next) => {
       category2.id,
     ];
     meditation2.instructor = instructor.id;
+    meditation2.duration = 400;
     const savedMeditation2 = await meditation2.save();
 
     const meditation3 = new Meditation();
     meditation3.name = 'איך נושמים';
     meditation3.url = 'https://www.avihay.net/wp-content/uploads/2017/12/hebcorazon.mp3';
+    meditation3.duration = 315;
 
     const savedMeditation3 = await meditation3.save();
 

@@ -17,6 +17,10 @@ const meditationSchema = new mongoose.Schema({
     index: true,
     trim: true,
   },
+  duration: {
+    type: Number,
+    required: true,
+  },
   categories: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
@@ -37,7 +41,7 @@ const meditationSchema = new mongoose.Schema({
 meditationSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'name', 'url', 'categories', 'instructor'];
+    const fields = ['id', 'name', 'url', 'categories', 'instructor', 'duration'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
