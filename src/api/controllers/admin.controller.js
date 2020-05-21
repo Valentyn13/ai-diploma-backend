@@ -8,9 +8,21 @@ exports.initSchema = async (req, res, next) => {
   try {
     const createdModels = {};
 
-    // Categories
+    const { deleteOnly } = req.body;
+
 
     await Category.deleteMany({});
+    await Instructor.deleteMany({});
+    await Meditation.deleteMany({});
+    await Course.deleteMany({});
+
+    if (deleteOnly) {
+      res.status(httpStatus.OK);
+      res.json({ status: 'all collections deleted' });
+      return;
+    }
+
+    // Categories
 
     const category1 = new Category();
     category1.name = 'sleep';
@@ -28,8 +40,6 @@ exports.initSchema = async (req, res, next) => {
 
     // Instructors
 
-    await Instructor.deleteMany({});
-
     const instructor = new Instructor();
     instructor.name = 'דנה מאיר';
     instructor.info = 'דנה מאיר היא מורת מדיטציה ופסיכולוגית בשרות משרד החינוך';
@@ -37,8 +47,6 @@ exports.initSchema = async (req, res, next) => {
     createdModels.instructors = [savedInstructor];
 
     // Meditations
-
-    await Meditation.deleteMany({});
 
     const meditation1 = new Meditation();
     meditation1.name = 'שינה יותר טובה';
@@ -74,8 +82,6 @@ exports.initSchema = async (req, res, next) => {
     ];
 
     // Courses
-
-    await Course.deleteMany({});
 
     const course = new Course();
     course.instructor = instructor.id;
