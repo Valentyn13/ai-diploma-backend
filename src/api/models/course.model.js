@@ -15,10 +15,10 @@ const courseSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  meditations: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Meditations',
-  }],
+  meditations: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'Meditation',
+  },
   instructor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Instructor',
@@ -32,18 +32,18 @@ const courseSchema = new mongoose.Schema({
 /**
  * Methods
  */
-courseSchema.method({
-  transform() {
-    const transformed = {};
-    const fields = ['id', 'name', 'info', 'meditations', 'instructor'];
+// courseSchema.method({
+//   transform() {
+//     const transformed = {};
+//     const fields = ['id', 'name', 'info', 'meditations', 'instructor'];
 
-    fields.forEach((field) => {
-      transformed[field] = this[field];
-    });
+//     fields.forEach((field) => {
+//       transformed[field] = this[field];
+//     });
 
-    return transformed;
-  },
-});
+//     return transformed;
+//   },
+// });
 
 /**
  * Statics
@@ -56,7 +56,7 @@ courseSchema.statics = {
    * @returns {Promise<Course[]>}
    */
   list() {
-    return this.find().exec();
+    return this.find().populate({ path: 'meditations', model: 'Meditation' }).lean().exec();
   },
 };
 

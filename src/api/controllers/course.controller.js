@@ -7,8 +7,7 @@ const Course = require('../models/course.model');
 exports.list = async (req, res, next) => {
   try {
     const courses = await Course.list(req.query);
-    const transformedCourses = courses.map(course => course.transform());
-    res.json(transformedCourses);
+    res.json(courses);
   } catch (error) {
     next(error);
   }
