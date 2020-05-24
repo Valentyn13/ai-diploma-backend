@@ -48,7 +48,7 @@ instructorSchema.statics = {
    * @returns {Promise<Instructor[]>}
    */
   list() {
-    return this.find().exec();
+    return this.find().lean().exec();
   },
 };
 

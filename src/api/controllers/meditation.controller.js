@@ -23,23 +23,14 @@ exports.list = async (req, res, next) => {
  */
 exports.listAll = async (req, res, next) => {
   try {
-    const meditations = await Meditation.list(req.query);
-    const transformedMeditations = meditations.map(meditation => meditation.transform());
-
-    const courses = await Course.list(req.query);
-    const transformedCourses = courses.map(course => course.transform());
-
     const categories = await Category.list(req.query);
-    const transformedCategories = categories.map(category => category.transform());
-
+    const courses = await Course.list(req.query);
     const instructors = await Instructor.list(req.query);
-    const transformedInstructors = instructors.map(instructor => instructor.transform());
 
     res.json({
-      meditations: transformedMeditations,
-      courses: transformedCourses,
-      categories: transformedCategories,
-      instructors: transformedInstructors,
+      categories,
+      courses,
+      instructors,
     });
   } catch (error) {
     next(error);
