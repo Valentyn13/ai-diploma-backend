@@ -20,6 +20,10 @@ const categorySchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  meditations: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'Meditation',
+  },
 }, {
   timestamps: true,
 });
@@ -28,18 +32,18 @@ const categorySchema = new mongoose.Schema({
 /**
  * Methods
  */
-categorySchema.method({
-  transform() {
-    const transformed = {};
-    const fields = ['id', 'name', 'title', 'info'];
+// categorySchema.method({
+//   transform() {
+//     const transformed = {};
+//     const fields = ['id', 'name', 'title', 'info', 'meditations'];
 
-    fields.forEach((field) => {
-      transformed[field] = this[field];
-    });
+//     fields.forEach((field) => {
+//       transformed[field] = this[field];
+//     });
 
-    return transformed;
-  },
-});
+//     return transformed;
+//   },
+// });
 
 /**
  * Statics
@@ -52,7 +56,7 @@ categorySchema.statics = {
    * @returns {Promise<Category[]>}
    */
   list() {
-    return this.find().exec();
+    return this.find().populate({ path: 'meditations', model: 'Meditation' }).lean().exec();
   },
 };
 

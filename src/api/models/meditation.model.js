@@ -21,10 +21,6 @@ const meditationSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  categories: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-  }],
   instructor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Instructor',

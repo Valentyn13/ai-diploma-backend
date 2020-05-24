@@ -22,22 +22,6 @@ exports.initSchema = async (req, res, next) => {
       return;
     }
 
-    // Categories
-
-    const category1 = new Category();
-    category1.name = 'sleep';
-    category1.title = 'שינה';
-    category1.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
-    const savedCategory1 = await category1.save();
-
-    const category2 = new Category();
-    category2.name = 'army';
-    category2.title = 'צבא';
-    category2.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
-    const savedCategory2 = await category2.save();
-
-    createdModels.categories = [savedCategory1, savedCategory2];
-
     // Instructors
 
     const instructor = new Instructor();
@@ -51,9 +35,6 @@ exports.initSchema = async (req, res, next) => {
     const meditation1 = new Meditation();
     meditation1.name = 'שינה יותר טובה';
     meditation1.url = 'https://www.avihay.net/wp-content/uploads/2017/12/hebcorazon.mp3';
-    meditation1.categories = [
-      category1.id,
-    ];
     meditation1.instructor = instructor.id;
     meditation1.duration = 200;
     const savedMeditation1 = await meditation1.save();
@@ -61,9 +42,6 @@ exports.initSchema = async (req, res, next) => {
     const meditation2 = new Meditation();
     meditation2.name = 'לפני אימון';
     meditation2.url = 'https://www.avihay.net/wp-content/uploads/2017/12/hebcorazon.mp3';
-    meditation2.categories = [
-      category2.id,
-    ];
     meditation2.instructor = instructor.id;
     meditation2.duration = 400;
     const savedMeditation2 = await meditation2.save();
@@ -80,6 +58,28 @@ exports.initSchema = async (req, res, next) => {
       savedMeditation2,
       savedMeditation3,
     ];
+
+    // Categories
+
+    const category1 = new Category();
+    category1.name = 'sleep';
+    category1.title = 'שינה';
+    category1.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
+    category1.meditations = [
+      meditation1.id,
+    ];
+    const savedCategory1 = await category1.save();
+
+    const category2 = new Category();
+    category2.name = 'army';
+    category2.title = 'צבא';
+    category2.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
+    category2.meditations = [
+      meditation2.id,
+    ];
+    const savedCategory2 = await category2.save();
+
+    createdModels.categories = [savedCategory1, savedCategory2];
 
     // Courses
 
