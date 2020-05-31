@@ -7,7 +7,7 @@ const Instructor = require('../models/instructor.model');
 exports.list = async (req, res, next) => {
   try {
     const instructors = await Instructor.list(req.query);
-    res.json({ instructors });
+    res.json({instructors});
   } catch (error) {
     next(error);
   }

@@ -4,30 +4,32 @@ const mongoose = require('mongoose');
  * Category Schema
  * @private
  */
-const categorySchema = new mongoose.Schema({
-  name: {
-    type: String,
-    maxlength: 128,
-    index: true,
-    trim: true,
+const categorySchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      maxlength: 128,
+      index: true,
+      trim: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      maxlength: 128,
+    },
+    info: {
+      type: String,
+      trim: true,
+    },
+    meditations: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Meditation',
+    },
   },
-  title: {
-    type: String,
-    required: true,
-    maxlength: 128,
+  {
+    timestamps: true,
   },
-  info: {
-    type: String,
-    trim: true,
-  },
-  meditations: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Meditation',
-  },
-}, {
-  timestamps: true,
-});
-
+);
 
 /**
  * Methods
@@ -49,17 +51,15 @@ const categorySchema = new mongoose.Schema({
  * Statics
  */
 categorySchema.statics = {
-
   /**
    * List all categories
    *
    * @returns {Promise<Category[]>}
    */
   list() {
-    return this.find().populate({ path: 'meditations', model: 'Meditation' }).lean().exec();
+    return this.find().populate({path: 'meditations', model: 'Meditation'}).lean().exec();
   },
 };
-
 
 /**
  * @typedef Category

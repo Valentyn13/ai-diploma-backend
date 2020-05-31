@@ -7,7 +7,7 @@ const Category = require('../models/category.model');
 exports.list = async (req, res, next) => {
   try {
     const categories = await Category.list(req.query);
-    res.json({ categories });
+    res.json({categories});
   } catch (error) {
     next(error);
   }

@@ -17,7 +17,7 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
 
   try {
     if (error || !user) throw error;
-    await logIn(user, { session: false });
+    await logIn(user, {session: false});
   } catch (e) {
     return next(apiError);
   }
@@ -45,10 +45,6 @@ exports.ADMIN = ADMIN;
 exports.LOGGED_USER = LOGGED_USER;
 
 exports.authorize = (roles = User.roles) => (req, res, next) =>
-  passport.authenticate(
-    'jwt', { session: false },
-    handleJWT(req, res, next, roles),
-  )(req, res, next);
+  passport.authenticate('jwt', {session: false}, handleJWT(req, res, next, roles))(req, res, next);
 
-exports.oAuth = service =>
-  passport.authenticate(service, { session: false });
+exports.oAuth = (service) => passport.authenticate(service, {session: false});

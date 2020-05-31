@@ -4,22 +4,23 @@ const mongoose = require('mongoose');
  * Instructor Schema
  * @private
  */
-const instructorSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    maxlength: 128,
-    index: true,
-    trim: true,
+const instructorSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      maxlength: 128,
+      index: true,
+      trim: true,
+    },
+    info: {
+      type: String,
+      trim: true,
+    },
   },
-  info: {
-    type: String,
-    trim: true,
+  {
+    timestamps: true,
   },
-
-}, {
-  timestamps: true,
-});
-
+);
 
 /**
  * Methods
@@ -41,7 +42,6 @@ instructorSchema.method({
  * Statics
  */
 instructorSchema.statics = {
-
   /**
    * List all instructors
    *

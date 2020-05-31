@@ -2,10 +2,10 @@
 /* eslint-disable no-unused-expressions */
 const request = require('supertest');
 const httpStatus = require('http-status');
-const { expect } = require('chai');
+const {expect} = require('chai');
 const sinon = require('sinon');
 const bcrypt = require('bcryptjs');
-const { some, omitBy, isNil } = require('lodash');
+const {some, omitBy, isNil} = require('lodash');
 const app = require('../../../index');
 const User = require('../../models/user.model');
 const JWT_EXPIRATION = require('../../../config/vars').jwtExpirationInterval;
@@ -21,7 +21,7 @@ async function format(user) {
   delete formated.password;
 
   // get users from database
-  const dbUser = (await User.findOne({ email: user.email })).transform();
+  const dbUser = (await User.findOne({email: user.email})).transform();
 
   // remove null and undefined properties
   return omitBy(dbUser, isNil);
@@ -106,9 +106,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.CONFLICT)
         .then((res) => {
-          const { field } = res.body.errors[0];
-          const { location } = res.body.errors[0];
-          const { messages } = res.body.errors[0];
+          const {field} = res.body.errors[0];
+          const {location} = res.body.errors[0];
+          const {messages} = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" already exists');
@@ -124,9 +124,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const { field } = res.body.errors[0];
-          const { location } = res.body.errors[0];
-          const { messages } = res.body.errors[0];
+          const {field} = res.body.errors[0];
+          const {location} = res.body.errors[0];
+          const {messages} = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" is required');
@@ -142,9 +142,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const { field } = res.body.errors[0];
-          const { location } = res.body.errors[0];
-          const { messages } = res.body.errors[0];
+          const {field} = res.body.errors[0];
+          const {location} = res.body.errors[0];
+          const {messages} = res.body.errors[0];
           expect(field).to.be.equal('password');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"password" length must be at least 6 characters long');
@@ -191,7 +191,7 @@ describe('Users API', async () => {
       return request(app)
         .get('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .query({ page: 2, perPage: 1 })
+        .query({page: 2, perPage: 1})
         .expect(httpStatus.OK)
         .then(async (res) => {
           delete dbUsers.jonSnow.password;
@@ -207,7 +207,7 @@ describe('Users API', async () => {
       return request(app)
         .get('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .query({ email: dbUsers.jonSnow.email })
+        .query({email: dbUsers.jonSnow.email})
         .expect(httpStatus.OK)
         .then(async (res) => {
           delete dbUsers.jonSnow.password;
@@ -224,25 +224,25 @@ describe('Users API', async () => {
         });
     });
 
-    it('should report error when pagination\'s parameters are not a number', () => {
+    it("should report error when pagination's parameters are not a number", () => {
       return request(app)
         .get('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .query({ page: '?', perPage: 'whaat' })
+        .query({page: '?', perPage: 'whaat'})
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const { field } = res.body.errors[0];
-          const { location } = res.body.errors[0];
-          const { messages } = res.body.errors[0];
+          const {field} = res.body.errors[0];
+          const {location} = res.body.errors[0];
+          const {messages} = res.body.errors[0];
           expect(field).to.be.equal('page');
           expect(location).to.be.equal('query');
           expect(messages).to.include('"page" must be a number');
           return Promise.resolve(res);
         })
         .then((res) => {
-          const { field } = res.body.errors[1];
-          const { location } = res.body.errors[1];
-          const { messages } = res.body.errors[1];
+          const {field} = res.body.errors[1];
+          const {location} = res.body.errors[1];
+          const {messages} = res.body.errors[1];
           expect(field).to.be.equal('perPage');
           expect(location).to.be.equal('query');
           expect(messages).to.include('"perPage" must be a number');
@@ -298,7 +298,7 @@ describe('Users API', async () => {
     });
 
     it('should report error when logged user is not the same as the requested one', async () => {
-      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+      const id = (await User.findOne({email: dbUsers.branStark.email}))._id;
 
       return request(app)
         .get(`/v1/users/${id}`)
@@ -338,9 +338,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const { field } = res.body.errors[0];
-          const { location } = res.body.errors[0];
-          const { messages } = res.body.errors[0];
+          const {field} = res.body.errors[0];
+          const {location} = res.body.errors[0];
+          const {messages} = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" is required');
@@ -357,9 +357,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const { field } = res.body.errors[0];
-          const { location } = res.body.errors[0];
-          const { messages } = res.body.errors[0];
+          const {field} = res.body.errors[0];
+          const {location} = res.body.errors[0];
+          const {messages} = res.body.errors[0];
           expect(field).to.be.equal('password');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"password" length must be at least 6 characters long');
@@ -378,7 +378,7 @@ describe('Users API', async () => {
     });
 
     it('should report error when logged user is not the same as the requested one', async () => {
-      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+      const id = (await User.findOne({email: dbUsers.branStark.email}))._id;
 
       return request(app)
         .put(`/v1/users/${id}`)
@@ -391,7 +391,7 @@ describe('Users API', async () => {
     });
 
     it('should not replace the role of the user (not admin)', async () => {
-      const id = (await User.findOne({ email: dbUsers.jonSnow.email }))._id;
+      const id = (await User.findOne({email: dbUsers.jonSnow.email}))._id;
       const role = 'admin';
 
       return request(app)
@@ -409,12 +409,12 @@ describe('Users API', async () => {
     it('should update user', async () => {
       delete dbUsers.branStark.password;
       const id = (await User.findOne(dbUsers.branStark))._id;
-      const { name } = user;
+      const {name} = user;
 
       return request(app)
         .patch(`/v1/users/${id}`)
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send({ name })
+        .send({name})
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.name).to.be.equal(name);
@@ -448,7 +448,7 @@ describe('Users API', async () => {
     });
 
     it('should report error when logged user is not the same as the requested one', async () => {
-      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+      const id = (await User.findOne({email: dbUsers.branStark.email}))._id;
 
       return request(app)
         .patch(`/v1/users/${id}`)
@@ -461,13 +461,13 @@ describe('Users API', async () => {
     });
 
     it('should not update the role of the user (not admin)', async () => {
-      const id = (await User.findOne({ email: dbUsers.jonSnow.email }))._id;
+      const id = (await User.findOne({email: dbUsers.jonSnow.email}))._id;
       const role = 'admin';
 
       return request(app)
         .patch(`/v1/users/${id}`)
         .set('Authorization', `Bearer ${userAccessToken}`)
-        .send({ role })
+        .send({role})
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.role).to.not.be.equal(role);
@@ -502,7 +502,7 @@ describe('Users API', async () => {
     });
 
     it('should report error when logged user is not the same as the requested one', async () => {
-      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+      const id = (await User.findOne({email: dbUsers.branStark.email}))._id;
 
       return request(app)
         .delete(`/v1/users/${id}`)
@@ -516,7 +516,7 @@ describe('Users API', async () => {
   });
 
   describe('GET /v1/users/profile', () => {
-    it('should get the logged user\'s info', () => {
+    it("should get the logged user's info", () => {
       delete dbUsers.jonSnow.password;
 
       return request(app)
@@ -534,7 +534,7 @@ describe('Users API', async () => {
       const expiredAccessToken = (await User.findAndGenerateToken(dbUsers.branStark)).accessToken;
 
       // move clock forward by minutes set in config + 1 minute
-      clock.tick((JWT_EXPIRATION * 60000) + 60000);
+      clock.tick(JWT_EXPIRATION * 60000 + 60000);
 
       return request(app)
         .get('/v1/users/profile')

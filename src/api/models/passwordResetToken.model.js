@@ -22,7 +22,7 @@ const passwordResetTokenSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  expires: { type: Date },
+  expires: {type: Date},
 });
 
 passwordResetTokenSchema.statics = {
@@ -36,9 +36,7 @@ passwordResetTokenSchema.statics = {
     const userId = user._id;
     const userEmail = user.email;
     const resetToken = `${userId}.${crypto.randomBytes(40).toString('hex')}`;
-    const expires = moment()
-      .add(2, 'hours')
-      .toDate();
+    const expires = moment().add(2, 'hours').toDate();
     const ResetTokenObject = new PasswordResetToken({
       resetToken,
       userId,

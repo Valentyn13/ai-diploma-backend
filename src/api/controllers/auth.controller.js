@@ -3,8 +3,8 @@ const User = require('../models/user.model');
 const RefreshToken = require('../models/refreshToken.model');
 const PasswordResetToken = require('../models/passwordResetToken.model');
 const moment = require('moment-timezone');
-const { jwtExpirationInterval } = require('../../config/vars');
-const { omit } = require('lodash');
+const {jwtExpirationInterval} = require('../../config/vars');
+const {omit} = require('lodash');
 const APIError = require('../utils/APIError');
 const emailProvider = require('../services/emails/emailProvider');
 
@@ -35,7 +35,7 @@ exports.register = async (req, res, next) => {
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
     res.status(httpStatus.CREATED);
-    return res.json({ token, user: userTransformed });
+    return res.json({token, user: userTransformed});
   } catch (error) {
     return next(User.checkDuplicateEmail(error));
   }
@@ -47,10 +47,10 @@ exports.register = async (req, res, next) => {
  */
 exports.login = async (req, res, next) => {
   try {
-    const { user, accessToken } = await User.findAndGenerateToken(req.body);
+    const {user, accessToken} = await User.findAndGenerateToken(req.body);
     const token = generateTokenResponse(user, accessToken);
     const userTransformed = user.transform();
-    return res.json({ token, user: userTransformed });
+    return res.json({token, user: userTransformed});
   } catch (error) {
     return next(error);
   }
@@ -63,11 +63,11 @@ exports.login = async (req, res, next) => {
  */
 exports.oAuth = async (req, res, next) => {
   try {
-    const { user } = req;
+    const {user} = req;
     const accessToken = user.token();
     const token = generateTokenResponse(user, accessToken);
     const userTransformed = user.transform();
-    return res.json({ token, user: userTransformed });
+    return res.json({token, user: userTransformed});
   } catch (error) {
     return next(error);
   }
@@ -79,12 +79,12 @@ exports.oAuth = async (req, res, next) => {
  */
 exports.refresh = async (req, res, next) => {
   try {
-    const { email, refreshToken } = req.body;
+    const {email, refreshToken} = req.body;
     const refreshObject = await RefreshToken.findOneAndRemove({
       userEmail: email,
       token: refreshToken,
     });
-    const { user, accessToken } = await User.findAndGenerateToken({ email, refreshObject });
+    const {user, accessToken} = await User.findAndGenerateToken({email, refreshObject});
     const response = generateTokenResponse(user, accessToken);
     return res.json(response);
   } catch (error) {
@@ -94,8 +94,8 @@ exports.refresh = async (req, res, next) => {
 
 exports.sendPasswordReset = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email }).exec();
+    const {email} = req.body;
+    const user = await User.findOne({email}).exec();
 
     if (user) {
       const passwordResetObj = await PasswordResetToken.generate(user);
@@ -114,7 +114,7 @@ exports.sendPasswordReset = async (req, res, next) => {
 
 exports.resetPassword = async (req, res, next) => {
   try {
-    const { email, password, resetToken } = req.body;
+    const {email, password, resetToken} = req.body;
     const resetTokenObject = await PasswordResetToken.findOneAndRemove({
       userEmail: email,
       resetToken,
@@ -133,7 +133,7 @@ exports.resetPassword = async (req, res, next) => {
       throw new APIError(err);
     }
 
-    const user = await User.findOne({ email: resetTokenObject.userEmail }).exec();
+    const user = await User.findOne({email: resetTokenObject.userEmail}).exec();
     user.password = password;
     await user.save();
     emailProvider.sendPasswordChangeEmail(user);

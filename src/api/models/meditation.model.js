@@ -4,32 +4,33 @@ const mongoose = require('mongoose');
  * User Schema
  * @private
  */
-const meditationSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    maxlength: 128,
-    index: true,
-    trim: true,
+const meditationSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      maxlength: 128,
+      index: true,
+      trim: true,
+    },
+    url: {
+      type: String,
+      maxlength: 256,
+      index: true,
+      trim: true,
+    },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    instructor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Instructor',
+    },
   },
-  url: {
-    type: String,
-    maxlength: 256,
-    index: true,
-    trim: true,
+  {
+    timestamps: true,
   },
-  duration: {
-    type: Number,
-    required: true,
-  },
-  instructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Instructor',
-  },
-
-}, {
-  timestamps: true,
-});
-
+);
 
 /**
  * Methods
@@ -51,7 +52,6 @@ meditationSchema.method({
  * Statics
  */
 meditationSchema.statics = {
-
   /**
    * List all meditations
    *

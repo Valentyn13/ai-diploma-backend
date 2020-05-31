@@ -10,7 +10,7 @@ const Instructor = require('../models/instructor.model');
 exports.list = async (req, res, next) => {
   try {
     const meditations = await Meditation.list(req.query);
-    const transformedMeditations = meditations.map(meditation => meditation.transform());
+    const transformedMeditations = meditations.map((meditation) => meditation.transform());
     res.json(transformedMeditations);
   } catch (error) {
     next(error);

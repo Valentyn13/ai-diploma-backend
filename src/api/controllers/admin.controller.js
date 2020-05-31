@@ -8,8 +8,7 @@ exports.initSchema = async (req, res, next) => {
   try {
     const createdModels = {};
 
-    const { deleteOnly } = req.body;
-
+    const {deleteOnly} = req.body;
 
     await Category.deleteMany({});
     await Instructor.deleteMany({});
@@ -18,7 +17,7 @@ exports.initSchema = async (req, res, next) => {
 
     if (deleteOnly) {
       res.status(httpStatus.OK);
-      res.json({ status: 'all collections deleted' });
+      res.json({status: 'all collections deleted'});
       return;
     }
 
@@ -53,11 +52,7 @@ exports.initSchema = async (req, res, next) => {
 
     const savedMeditation3 = await meditation3.save();
 
-    createdModels.meditations = [
-      savedMeditation1,
-      savedMeditation2,
-      savedMeditation3,
-    ];
+    createdModels.meditations = [savedMeditation1, savedMeditation2, savedMeditation3];
 
     // Categories
 
@@ -65,18 +60,14 @@ exports.initSchema = async (req, res, next) => {
     category1.name = 'sleep';
     category1.title = 'שינה';
     category1.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
-    category1.meditations = [
-      meditation1.id,
-    ];
+    category1.meditations = [meditation1.id];
     const savedCategory1 = await category1.save();
 
     const category2 = new Category();
     category2.name = 'army';
     category2.title = 'צבא';
     category2.info = 'משפט או שניים המסבירים על הקטגוריה. צריך להיות מושך ולא מאיים. וגם בלה בלה';
-    category2.meditations = [
-      meditation2.id,
-    ];
+    category2.meditations = [meditation2.id];
     const savedCategory2 = await category2.save();
 
     createdModels.categories = [savedCategory1, savedCategory2];
@@ -86,10 +77,9 @@ exports.initSchema = async (req, res, next) => {
     const course = new Course();
     course.instructor = instructor.id;
     course.name = 'קורס ראשון';
-    course.info = "אי אפשר להתעלם מהיתרונות הרבים של לימוד מדיטציה בקבוצה, במסגרת קורס, סדנה, 'ריטריט' (Retreat) או מפגשי תרגול קבועים, אך לימוד מדיטציה אחד על אחד עם מורה למדיטציה מכיל תועלות חשובות ויוצאות דופן.ציה בקבוצה, במסגרת קורס, סדנה, 'ריטריט' (Retreat) או מפגשי תרגול קבועים, אך לימוד מדיטציה אחד על אחד עם מורה למדיטציה מכיל תועלות חשובות ויוצאות דופן. ציה בקבוצה, במסגרת קורס, סדנה, ריטריט (Retreat) או מפגשי תרגול קבועים, אך לימוד מדיטציה אחד על אחד עם מורה למדיטציה מכיל תועלות חשובות ויוצאות דופן.";
-    course.meditations = [
-      meditation3.id,
-    ];
+    course.info =
+      "אי אפשר להתעלם מהיתרונות הרבים של לימוד מדיטציה בקבוצה, במסגרת קורס, סדנה, 'ריטריט' (Retreat) או מפגשי תרגול קבועים, אך לימוד מדיטציה אחד על אחד עם מורה למדיטציה מכיל תועלות חשובות ויוצאות דופן.ציה בקבוצה, במסגרת קורס, סדנה, 'ריטריט' (Retreat) או מפגשי תרגול קבועים, אך לימוד מדיטציה אחד על אחד עם מורה למדיטציה מכיל תועלות חשובות ויוצאות דופן. ציה בקבוצה, במסגרת קורס, סדנה, ריטריט (Retreat) או מפגשי תרגול קבועים, אך לימוד מדיטציה אחד על אחד עם מורה למדיטציה מכיל תועלות חשובות ויוצאות דופן.";
+    course.meditations = [meditation3.id];
     const savedCourse = await course.save();
     createdModels.courses = [savedCourse];
 

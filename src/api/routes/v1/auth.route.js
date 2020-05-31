@@ -40,9 +40,7 @@ const router = express.Router();
  *
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  */
-router.route('/register')
-  .post(validate(register), controller.register);
-
+router.route('/register').post(validate(register), controller.register);
 
 /**
  * @api {post} v1/auth/login Login
@@ -71,9 +69,7 @@ router.route('/register')
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or password
  */
-router.route('/login')
-  .post(validate(login), controller.login);
-
+router.route('/login').post(validate(login), controller.login);
 
 /**
  * @api {post} v1/auth/refresh-token Refresh Token
@@ -94,15 +90,11 @@ router.route('/login')
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
  */
-router.route('/refresh-token')
-  .post(validate(refresh), controller.refresh);
+router.route('/refresh-token').post(validate(refresh), controller.refresh);
 
+router.route('/send-password-reset').post(validate(sendPasswordReset), controller.sendPasswordReset);
 
-router.route('/send-password-reset')
-  .post(validate(sendPasswordReset), controller.sendPasswordReset);
-
-router.route('/reset-password')
-  .post(validate(passwordReset), controller.resetPassword);
+router.route('/reset-password').post(validate(passwordReset), controller.resetPassword);
 
 /**
  * @api {post} v1/auth/facebook Facebook Login
@@ -122,8 +114,7 @@ router.route('/reset-password')
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
-router.route('/facebook')
-  .post(validate(oAuth), oAuthLogin('facebook'), controller.oAuth);
+router.route('/facebook').post(validate(oAuth), oAuthLogin('facebook'), controller.oAuth);
 
 /**
  * @api {post} v1/auth/google Google Login
@@ -143,8 +134,6 @@ router.route('/facebook')
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
-router.route('/google')
-  .post(validate(oAuth), oAuthLogin('google'), controller.oAuth);
-
+router.route('/google').post(validate(oAuth), oAuthLogin('google'), controller.oAuth);
 
 module.exports = router;

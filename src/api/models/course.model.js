@@ -4,30 +4,32 @@ const mongoose = require('mongoose');
  * Course Schema
  * @private
  */
-const courseSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    maxlength: 128,
-    index: true,
-    trim: true,
+const courseSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      maxlength: 128,
+      index: true,
+      trim: true,
+    },
+    info: {
+      type: String,
+      trim: true,
+    },
+    meditations: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Meditation',
+    },
+    instructor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Instructor',
+      required: true,
+    },
   },
-  info: {
-    type: String,
-    trim: true,
+  {
+    timestamps: true,
   },
-  meditations: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Meditation',
-  },
-  instructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Instructor',
-    required: true,
-  },
-}, {
-  timestamps: true,
-});
-
+);
 
 /**
  * Methods
@@ -49,17 +51,15 @@ const courseSchema = new mongoose.Schema({
  * Statics
  */
 courseSchema.statics = {
-
   /**
    * List all courses
    *
    * @returns {Promise<Course[]>}
    */
   list() {
-    return this.find().populate({ path: 'meditations', model: 'Meditation' }).lean().exec();
+    return this.find().populate({path: 'meditations', model: 'Meditation'}).lean().exec();
   },
 };
-
 
 /**
  * @typedef Course
