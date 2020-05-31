@@ -11,6 +11,12 @@ module.exports = {
         .required()
         .min(6)
         .max(128),
+      name: Joi.string()
+        .required(),
+      sex: Joi.string()
+        .valid('F', 'M'),
+      categories: Joi.array()
+        .items(Joi.string()),
     },
   },
 
@@ -31,6 +37,10 @@ module.exports = {
   oAuth: {
     body: {
       access_token: Joi.string().required(),
+      sex: Joi.string()
+        .valid('F', 'M'),
+      categories: Joi.array()
+        .items(Joi.string()),
     },
   },
 
