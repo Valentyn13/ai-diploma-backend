@@ -234,8 +234,8 @@ userSchema.statics = {
       user.services[service] = id;
       if (!user.name) user.name = name;
       if (!user.picture) user.picture = picture;
-      user.sex = sex;
-      user.categories = categories;
+      if (!user.sex) user.sex = sex;
+      if (!user.categories) user.categories = categories;
       return user.save();
     }
     const password = uuidv4();
