@@ -4,7 +4,6 @@ const RefreshToken = require('../models/refreshToken.model');
 const PasswordResetToken = require('../models/passwordResetToken.model');
 const moment = require('moment-timezone');
 const {jwtExpirationInterval} = require('../../config/vars');
-const {omit} = require('lodash');
 const APIError = require('../utils/APIError');
 const emailProvider = require('../services/emails/emailProvider');
 
@@ -30,7 +29,18 @@ function generateTokenResponse(user, accessToken) {
  */
 exports.register = async (req, res, next) => {
   try {
-    const userData = omit(req.body, 'role');
+    const {email, password, name, picture, sex, categories} = req.body;
+    const userData = {
+      email,
+      password,
+      name,
+      picture,
+      sex,
+      userPreferences: {
+        selectedCategories: categories,
+      },
+      userProgress: {},
+    };
     const user = await new User(userData).save();
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
