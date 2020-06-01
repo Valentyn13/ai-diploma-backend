@@ -56,9 +56,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['F', 'M'],
     },
-    categories: {
-      type: [String],
-      trim: true,
+    userPreferences: {
+      type: Object,
+    },
+    userProgress: {
+      type: Object,
     },
   },
   {
@@ -93,7 +95,7 @@ userSchema.pre('save', async function save(next) {
 userSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'name', 'email', 'picture', 'role', 'createdAt', 'sex', 'categories'];
+    const fields = ['id', 'name', 'email', 'picture', 'role', 'createdAt', 'sex', 'userPreferences', 'userProgress'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
@@ -235,7 +237,11 @@ userSchema.statics = {
       if (!user.name) user.name = name;
       if (!user.picture) user.picture = picture;
       if (!user.sex) user.sex = sex;
-      if (!user.categories) user.categories = categories;
+      if (!user.userPreferences) {
+        user.userPreferences = {
+          selectedCategories: categories,
+        };
+      }
       return user.save();
     }
     const password = uuidv4();
@@ -246,7 +252,10 @@ userSchema.statics = {
       name,
       picture,
       sex,
-      categories,
+      userPreferences: {
+        selectedCategories: categories,
+      },
+      userProgress: {},
     });
   },
 };
