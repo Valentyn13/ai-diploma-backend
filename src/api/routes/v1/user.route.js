@@ -181,4 +181,8 @@ router
    */
   .delete(authorize(LOGGED_USER), controller.remove);
 
+router.route('/preferences/:userId').post(authorize(LOGGED_USER), controller.syncUserPreferences);
+
+router.route('/progress/:userId').post(authorize(LOGGED_USER), controller.syncUserProgress);
+
 module.exports = router;

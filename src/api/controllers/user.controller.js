@@ -104,3 +104,23 @@ exports.remove = (req, res, next) => {
     .then(() => res.status(httpStatus.NO_CONTENT).end())
     .catch((e) => next(e));
 };
+
+exports.syncUserPreferences = (req, res, next) => {
+  const userPreferences = req.body;
+  const {user} = req.locals;
+  user.userPreferences = userPreferences;
+  user
+    .save()
+    .then((savedUser) => res.json(savedUser.transform()))
+    .catch((e) => next(e));
+};
+
+exports.syncUserProgress = (req, res, next) => {
+  const userProgress = req.body;
+  const {user} = req.locals;
+  user.userProgress = userProgress;
+  user
+    .save()
+    .then((savedUser) => res.json(savedUser.transform()))
+    .catch((e) => next(e));
+};
