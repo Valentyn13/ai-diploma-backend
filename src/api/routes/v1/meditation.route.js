@@ -1,5 +1,6 @@
 const express = require('express');
 const controller = require('../../controllers/meditation.controller');
+const {authorize, LOGGED_USER_NO_ID} = require('../../middlewares/auth');
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router
    *
    * @apiError (Unauthorized 401)  Unauthorized  Only authenticated users can access the data
    */
-  .get(controller.list);
+  .get(authorize(LOGGED_USER_NO_ID), controller.list);
 
 router
   .route('/all')
@@ -35,6 +36,6 @@ router
    *
    * @apiError (Unauthorized 401)  Unauthorized  Only authenticated users can access the data
    */
-  .get(controller.listAll);
+  .get(authorize(LOGGED_USER_NO_ID), controller.listAll);
 
 module.exports = router;
