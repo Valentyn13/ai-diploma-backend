@@ -8,8 +8,18 @@ const logger = winston.createLogger({
     // - Write to all logs with level `info` and below to `combined.log`
     // - Write all logs error (and below) to `error.log`.
     //
-    new winston.transports.File({filename: 'error.log', level: 'error'}),
-    new winston.transports.File({filename: 'combined.log'}),
+    // new winston.transports.File({filename: 'error.log', level: 'error'}),
+    // new winston.transports.File({filename: 'combined.log'}),
+    new winston.transports.File({
+      format: winston.format.simple(),
+      level: 'info',
+      filename: './logs/all-logs.log',
+      handleExceptions: true,
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+      // colorize: false,
+      // json: true,
+    }),
   ],
 });
 

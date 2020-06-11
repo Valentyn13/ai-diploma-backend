@@ -9,6 +9,7 @@ const passport = require('passport');
 const routes = require('../api/routes/v1');
 const {logs} = require('./vars');
 const strategies = require('./passport');
+const logger = require('../config/logger');
 const error = require('../api/middlewares/error');
 
 /**
@@ -18,7 +19,7 @@ const error = require('../api/middlewares/error');
 const app = express();
 
 // request logging. dev: console | production: file
-app.use(morgan(logs));
+app.use(morgan(logs, {stream: logger.stream}));
 
 // parse body params and attache them to req.body
 app.use(bodyParser.json());
