@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
-const {omitBy, isNil} = require('lodash');
+const {omitBy, isNil, get} = require('lodash');
 const bcrypt = require('bcryptjs');
 const moment = require('moment-timezone');
 const jwt = require('jwt-simple');
@@ -12,6 +12,11 @@ const {env, jwtSecret, jwtExpirationInterval} = require('../../config/vars');
  * User Roles
  */
 const roles = ['user', 'admin'];
+
+/**
+ * Subscription Stores
+ */
+const stores = ['PLAY_STORE', 'APP_STORE', 'STRIPE', 'MAC_APP_STORE', 'PROMOTIONAL'];
 
 /**
  * User Schema
@@ -61,6 +66,16 @@ const userSchema = new mongoose.Schema(
     },
     userProgress: {
       type: Object,
+    },
+    membership: {
+      entitlements: [String],
+      expiresAt: Date,
+      store: {
+        type: String,
+        enum: stores,
+      },
+      recentTransactionID: String,
+      purchasedAt: Date,
     },
   },
   {
@@ -115,6 +130,10 @@ userSchema.method({
 
   async passwordMatches(password) {
     return bcrypt.compare(password, this.password);
+  },
+
+  hasMembership() {
+    return get(this.membership, 'expiresAt', new Date(0)).valueOf() > Date.now();
   },
 });
 
