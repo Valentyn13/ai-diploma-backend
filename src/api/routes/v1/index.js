@@ -6,6 +6,7 @@ const meditationRoutes = require('./meditation.route');
 const categoryRoutes = require('./category.route');
 const courseRoutes = require('./course.route');
 const instructorRoutes = require('./instructor.route');
+const revenuecatRoutes = require('./revenuecat.route');
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use('/meditations', meditationRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/courses', courseRoutes);
 router.use('/instructors', instructorRoutes);
+router.use('/revenuecat', revenuecatRoutes);
 
 module.exports = router;
