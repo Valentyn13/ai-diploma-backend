@@ -26,6 +26,10 @@ const meditationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Instructor',
     },
+    premium: {
+      type: Boolean,
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -38,7 +42,7 @@ const meditationSchema = new mongoose.Schema(
 meditationSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'name', 'url', 'categories', 'instructor', 'duration'];
+    const fields = ['id', 'name', 'url', 'categories', 'instructor', 'duration', 'premium'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
