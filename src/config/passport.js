@@ -22,22 +22,22 @@ const jwt = async (payload, done) => {
 
 const oAuth = (service) => async (req, token, done) => {
   try {
-    console.log("service",service)
-    if(service==="apple"){
-      const {sex, categories,email,sub,name} = req.body;
-      const userData={
-        service:'apple',
+    console.log('service', service);
+    if (service === 'apple') {
+      const {sex, categories, email, sub, name} = req.body;
+      const userData = {
+        service: 'apple',
         email,
-        id:sub,
+        id: sub,
         name,
-      }
+      };
       const extendedUserData = {
         ...userData,
         sex,
         categories,
       };
       const user = await User.oAuthLogin(extendedUserData);
-    return done(null, user);
+      return done(null, user);
     }
     const userData = await authProviders[service](token);
     const {sex, categories} = req.body;
@@ -56,4 +56,4 @@ const oAuth = (service) => async (req, token, done) => {
 exports.jwt = new JwtStrategy(jwtOptions, jwt);
 exports.facebook = new BearerStrategy({passReqToCallback: true}, oAuth('facebook'));
 exports.google = new BearerStrategy(oAuth('google'));
-exports.apple=new BearerStrategy({passReqToCallback: true},oAuth('apple'));
+exports.apple = new BearerStrategy({passReqToCallback: true}, oAuth('apple'));
