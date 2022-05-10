@@ -1,6 +1,8 @@
 const httpStatus = require('http-status');
 const {omit} = require('lodash');
 const User = require('../models/user.model');
+const emailProvider = require('../services/emails/emailProvider');
+const APIError = require('../utils/APIError');
 
 /**
  * Load user and append to req.
@@ -123,4 +125,22 @@ exports.syncUserProgress = (req, res, next) => {
     .save()
     .then((savedUser) => res.json(savedUser.transform()))
     .catch((e) => next(e));
+};
+
+exports.deleteUserData = async (req, res, next) => {
+  try {
+    const {user} = req.locals;
+    if (user) {
+      await emailProvider.deleteUserData(user);
+      res.status(httpStatus.OK);
+      return res.json('success');
+    }
+    throw new APIError({
+      status: httpStatus.UNAUTHORIZED,
+      message: 'No account found with that email',
+    });
+  } catch (error) {
+    console.log('error', error);
+    return next(error);
+  }
 };

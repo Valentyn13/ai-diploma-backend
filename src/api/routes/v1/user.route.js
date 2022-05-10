@@ -185,4 +185,6 @@ router.route('/preferences/:userId').post(authorize(LOGGED_USER), controller.syn
 
 router.route('/progress/:userId').post(authorize(LOGGED_USER), controller.syncUserProgress);
 
+router.route('/deleteUserData/:userId').get(authorize(LOGGED_USER), controller.deleteUserData);
+
 module.exports = router;
