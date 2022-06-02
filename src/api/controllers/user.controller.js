@@ -3,6 +3,8 @@ const {omit} = require('lodash');
 const User = require('../models/user.model');
 const emailProvider = require('../services/emails/emailProvider');
 const APIError = require('../utils/APIError');
+const bcrypt = require('bcryptjs');
+const {env} = require('../../config/vars');
 
 /**
  * Load user and append to req.
@@ -138,6 +140,55 @@ exports.deleteUserData = async (req, res, next) => {
     throw new APIError({
       status: httpStatus.UNAUTHORIZED,
       message: 'No account found with that email',
+    });
+  } catch (error) {
+    console.log('error', error);
+    return next(error);
+  }
+};
+
+exports.updateProfile = async (req, res, next) => {
+  const {user} = req.locals;
+  const response = await User.findOneAndUpdate({_id: user._id}, req.body.data, {
+    upsert: true,
+    returnNewDocument: true,
+    new: true,
+  });
+  if (response) {
+    res.status(httpStatus.OK);
+    return res.json(response.transform());
+  }
+  throw new APIError({
+    status: httpStatus.BAD_REQUEST,
+    message: 'try later',
+  });
+};
+
+exports.changePassword = async (req, res, next) => {
+  try {
+    const obj = req.body;
+    const {user} = req.locals;
+    const rounds = env === 'test' ? 1 : 10;
+
+    const password = await bcrypt.hash(obj.data, rounds);
+
+    const response = await User.findOneAndUpdate(
+      {_id: user._id},
+      {password},
+      {
+        upsert: true,
+        returnNewDocument: true,
+        new: true,
+      },
+    );
+    if (response) {
+      res.status(httpStatus.OK);
+      return res.json(response.transform());
+    }
+
+    throw new APIError({
+      status: httpStatus.BAD_REQUEST,
+      message: 'try later',
     });
   } catch (error) {
     console.log('error', error);
