@@ -27,7 +27,6 @@ const courseSchema = new mongoose.Schema(
     },
     subTitle: {
       type: String,
-
     },
   },
   {
@@ -61,7 +60,7 @@ courseSchema.statics = {
    * @returns {Promise<Course[]>}
    */
   list() {
-    return this.find().populate({ path: 'meditations', model: 'Meditation' }).lean().exec();
+    return this.find().populate({path: 'meditations', model: 'Meditation'}).lean().exec();
   },
 };
 

@@ -8,7 +8,7 @@ exports.list = async (req, res, next) => {
   try {
     const courses = await Course.list(req.query);
 
-    res.json({ courses });
+    res.json({courses});
   } catch (error) {
     next(error);
   }

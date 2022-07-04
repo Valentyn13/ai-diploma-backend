@@ -31,7 +31,6 @@ exports.listAll = async (req, res, next) => {
       courses,
       instructors,
     });
-
   } catch (error) {
     next(error);
   }
