@@ -25,6 +25,10 @@ const courseSchema = new mongoose.Schema(
       ref: 'Instructor',
       required: true,
     },
+    subTitle: {
+      type: String,
+
+    },
   },
   {
     timestamps: true,
@@ -57,7 +61,7 @@ courseSchema.statics = {
    * @returns {Promise<Course[]>}
    */
   list() {
-    return this.find().populate({path: 'meditations', model: 'Meditation'}).lean().exec();
+    return this.find().populate({ path: 'meditations', model: 'Meditation' }).lean().exec();
   },
 };
 

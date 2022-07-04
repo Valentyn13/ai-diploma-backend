@@ -26,12 +26,12 @@ exports.listAll = async (req, res, next) => {
     const categories = await Category.list(req.query);
     const courses = await Course.list(req.query);
     const instructors = await Instructor.list(req.query);
-
     res.json({
       categories,
       courses,
       instructors,
     });
+
   } catch (error) {
     next(error);
   }
