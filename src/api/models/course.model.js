@@ -25,6 +25,9 @@ const courseSchema = new mongoose.Schema(
       ref: 'Instructor',
       required: true,
     },
+    subTitle: {
+      type: String,
+    },
   },
   {
     timestamps: true,
