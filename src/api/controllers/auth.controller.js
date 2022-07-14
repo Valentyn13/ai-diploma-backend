@@ -6,6 +6,7 @@ const moment = require('moment-timezone');
 const {jwtExpirationInterval} = require('../../config/vars');
 const APIError = require('../utils/APIError');
 const emailProvider = require('../services/emails/emailProvider');
+const axios = require('axios');
 
 /**
  * Returns a formated object with tokens
@@ -44,6 +45,8 @@ exports.register = async (req, res, next) => {
     const user = await new User(userData).save();
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
+    const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
+    await axios.post(url, userTransformed);
     res.status(httpStatus.CREATED);
     return res.json({token, user: userTransformed});
   } catch (error) {
