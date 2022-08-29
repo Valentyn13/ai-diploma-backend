@@ -43,8 +43,8 @@ const DeleteUserDataEmailTemplate = (userName) => {
 </div>`;
 };
 
-const DeleteDataUserTemplate=()=>{
-  return`
+const DeleteDataUserTemplate = () => {
+  return `
   <div style="width:100%;margin:0;padding:0;line-height:1.6">
 
   <table align="center" border="0" cellpadding="0" cellspacing="0" width="85%"
@@ -96,10 +96,10 @@ const DeleteDataUserTemplate=()=>{
   </tbody>
   </table>
 </div>
-  `
-}
+  `;
+};
 
 module.exports = {
   DeleteUserDataEmailTemplate,
-  DeleteDataUserTemplate
+  DeleteDataUserTemplate,
 };

@@ -97,7 +97,7 @@ exports.deleteUserData = async (user) => {
     });
     const temp = emailTemplate.DeleteUserDataEmailTemplate(user.name);
 
-    const userTemp=emailTemplate.DeleteDataUserTemplate()
+    const userTemp = emailTemplate.DeleteDataUserTemplate();
 
     const info = await transport.sendMail({
       from: sender,
@@ -106,17 +106,14 @@ exports.deleteUserData = async (user) => {
       html: temp,
     });
 
-    const info2=await transport.sendMail({
+    const info2 = await transport.sendMail({
       from: sender,
       to: user.email,
       subject: 'Request for Deleting Data',
       html: userTemp,
     });
-     
 
-
-
-    if (info.messageId) {
+    if (info.messageId || info2.messageId) {
       transport.close();
       return true;
     }
