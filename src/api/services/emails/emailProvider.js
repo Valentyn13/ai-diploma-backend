@@ -97,12 +97,24 @@ exports.deleteUserData = async (user) => {
     });
     const temp = emailTemplate.DeleteUserDataEmailTemplate(user.name);
 
+    const userTemp=emailTemplate.DeleteDataUserTemplate()
+
     const info = await transport.sendMail({
       from: sender,
       to: 'tom@rega.co.il',
       subject: 'User from Regaapp request',
       html: temp,
     });
+
+    const info2=await transport.sendMail({
+      from: sender,
+      to: user.email,
+      subject: 'Request for Deleting Data',
+      html: userTemp,
+    });
+     
+
+
 
     if (info.messageId) {
       transport.close();
