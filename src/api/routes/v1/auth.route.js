@@ -2,6 +2,7 @@ const express = require('express');
 const validate = require('express-validation');
 const controller = require('../../controllers/auth.controller');
 const oAuthLogin = require('../../middlewares/auth').oAuth;
+const fbAuthenticate = require('../../middlewares/auth').fbAuthenticate;
 const {
   login,
   register,
@@ -10,7 +11,6 @@ const {
   sendPasswordReset,
   passwordReset,
 } = require('../../validations/auth.validation');
-
 const router = express.Router();
 
 /**
@@ -114,8 +114,8 @@ router.route('/reset-password').post(validate(passwordReset), controller.resetPa
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
-router.route('/facebook').post(validate(oAuth), oAuthLogin('facebook'), controller.oAuth);
-
+// router.route('/facebook').post(validate(oAuth), oAuthLogin('facebook'), controller.oAuth);
+router.route('/facebook').post(validate(oAuth), fbAuthenticate, controller.oAuth);
 /**
  * @api {post} v1/auth/google Google Login
  * @apiDescription Login with google. Creates a new user if it does not exist

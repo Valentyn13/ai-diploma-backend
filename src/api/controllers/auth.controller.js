@@ -79,7 +79,9 @@ exports.oAuth = async (req, res, next) => {
     const {user} = req;
     const accessToken = user.token();
     const token = generateTokenResponse(user, accessToken);
+
     const userTransformed = user.transform();
+
     return res.json({token, user: userTransformed});
   } catch (error) {
     return next(error);
