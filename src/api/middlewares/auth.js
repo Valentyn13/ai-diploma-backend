@@ -3,6 +3,7 @@ const passport = require('passport');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError');
 const Axios = require('axios');
+
 const ADMIN = 'admin';
 const LOGGED_USER = '_loggedUser';
 const LOGGED_USER_NO_ID = '_loggedUserNoId';
@@ -56,7 +57,7 @@ exports.fbAuthenticate = async (req, res, next) => {
     console.log(' i am calling');
     const {access_token} = req.body;
 
-    var config = {
+    const config = {
       method: 'get',
       url: `https://graph.facebook.com/v15.0/me?fields=email%2Cid%2Cfirst_name%2Clast_name&access_token=${access_token}`,
     };
@@ -74,9 +75,9 @@ exports.fbAuthenticate = async (req, res, next) => {
           userPreferences: {
             selectedCategories: req.body.categories,
           },
-          email: response?.data?.email,
-          name: `${response?.data?.first_name}${response?.data?.first_name}`,
-          services: {facebook: response?.data?.id},
+          email: response.data.email,
+          name: `${response.data.first_name}${response.data.first_name}`,
+          services: {facebook: response.data.id},
           password: 'nopass',
         };
         const user = await new User(newData).save();

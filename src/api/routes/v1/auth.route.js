@@ -2,7 +2,7 @@ const express = require('express');
 const validate = require('express-validation');
 const controller = require('../../controllers/auth.controller');
 const oAuthLogin = require('../../middlewares/auth').oAuth;
-const fbAuthenticate = require('../../middlewares/auth').fbAuthenticate;
+const {fbAuthenticate} = require('../../middlewares/auth');
 const {
   login,
   register,
@@ -11,6 +11,7 @@ const {
   sendPasswordReset,
   passwordReset,
 } = require('../../validations/auth.validation');
+
 const router = express.Router();
 
 /**
