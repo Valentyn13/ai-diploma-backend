@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
 const User = require('../models/user.model');
+const FcmToken = require('../models/fcmToken.model');
 const RefreshToken = require('../models/refreshToken.model');
 const PasswordResetToken = require('../models/passwordResetToken.model');
 const moment = require('moment-timezone');
@@ -30,7 +31,8 @@ function generateTokenResponse(user, accessToken) {
  */
 exports.register = async (req, res, next) => {
   try {
-    const {email, password, name, picture, sex, categories} = req.body;
+    const {email, password, name, picture, sex, categories, fcmToken} = req.body;
+    console.log('fcm', fcmToken);
     const userData = {
       email,
       password,
@@ -45,6 +47,16 @@ exports.register = async (req, res, next) => {
     const user = await new User(userData).save();
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
+    const findFcm = await FcmToken.find({fcm: fcmToken});
+    console.log('findFcm', findFcm);
+    if (!findFcm || findFcm.length < 1) {
+      const newfcmToken = new FcmToken({
+        userId: user._id,
+        fcm: fcmToken,
+      });
+      const saveFcm = await newfcmToken.save();
+    }
+
     const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
     await axios.post(url, userTransformed);
     res.status(httpStatus.CREATED);
@@ -60,8 +72,18 @@ exports.register = async (req, res, next) => {
  */
 exports.login = async (req, res, next) => {
   try {
+    const {fcmToken} = req.body;
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
     const token = generateTokenResponse(user, accessToken);
+    const findFcm = await FcmToken.find({fcm: fcmToken});
+    console.log('findFcm', findFcm);
+    if (!findFcm || findFcm.length < 1) {
+      const newfcmToken = new FcmToken({
+        userId: user._id,
+        fcm: fcmToken,
+      });
+      const saveFcm = await newfcmToken.save();
+    }
     const userTransformed = user.transform();
     return res.json({token, user: userTransformed});
   } catch (error) {
@@ -77,6 +99,15 @@ exports.login = async (req, res, next) => {
 exports.oAuth = async (req, res, next) => {
   try {
     const {user} = req;
+    const {fcmToken} = req.body;
+    const findFcm = await FcmToken.find({fcm: fcmToken});
+    if (!findFcm || findFcm.length < 1) {
+      const newfcmToken = new FcmToken({
+        userId: user._id,
+        fcm: fcmToken,
+      });
+      const saveFcm = await newfcmToken.save();
+    }
     const accessToken = user.token();
     const token = generateTokenResponse(user, accessToken);
 

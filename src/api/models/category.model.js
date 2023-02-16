@@ -25,6 +25,9 @@ const categorySchema = new mongoose.Schema(
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'Meditation',
     },
+    order: {
+      type: Number,
+    },
   },
   {
     timestamps: true,

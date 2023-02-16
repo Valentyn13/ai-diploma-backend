@@ -54,7 +54,6 @@ exports.oAuth = (service) => passport.authenticate(service, {session: false});
 
 exports.fbAuthenticate = async (req, res, next) => {
   try {
-    console.log(' i am calling');
     const {access_token} = req.body;
 
     const config = {
@@ -64,7 +63,6 @@ exports.fbAuthenticate = async (req, res, next) => {
     const response = await Axios(config);
     if (response) {
       const finduser = await User.findOne({email: response.data.email});
-      console.log('finduser', finduser);
       if (finduser) {
         req.user = finduser;
         next();
@@ -81,6 +79,7 @@ exports.fbAuthenticate = async (req, res, next) => {
           password: 'nopass',
         };
         const user = await new User(newData).save();
+
         req.user = user;
         next();
       }

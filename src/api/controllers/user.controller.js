@@ -195,3 +195,18 @@ exports.changePassword = async (req, res, next) => {
     return next(error);
   }
 };
+
+exports.sendCancelSubscriptionEmail = async (req, res, next) => {
+  try {
+    const {user} = req.locals;
+    if (user) {
+      await emailProvider.cancelSubscription(user, req.body.data.reason);
+      res.status(httpStatus.OK);
+      return res.json('success');
+    }
+  } catch (error) {
+    console.log('<<<<<<<error>>>>>>>', error);
+    // res.status(httpStatus.BAD_GATEWAY);
+    return next(error);
+  }
+};

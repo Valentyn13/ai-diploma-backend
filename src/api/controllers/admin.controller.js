@@ -3,7 +3,7 @@ const Category = require('../models/category.model');
 const Meditation = require('../models/meditation.model');
 const Course = require('../models/course.model');
 const Instructor = require('../models/instructor.model');
-
+// const Notification = require('../models/notification.model');
 exports.initSchema = async (req, res, next) => {
   try {
     const createdModels = {};
@@ -21,6 +21,13 @@ exports.initSchema = async (req, res, next) => {
       return;
     }
 
+    // const notification = new Notification();
+    // notification.type = 'custom';
+    // notification.title = 'welcome';
+    // notification.body = 'welcome to Rega app ';
+    // notification.imageUrl = "https://cdn4.iconfinder.com/data/icons/logos-brands-5/24/react-128.png'";
+    // const savenoti = await notification.save();
+    // createdModels.notifications = [savenoti];
     // Instructors
 
     const instructor = new Instructor();

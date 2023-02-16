@@ -30,6 +30,12 @@ const meditationSchema = new mongoose.Schema(
       type: Boolean,
       index: true,
     },
+    count: {
+      type: Number,
+    },
+    createdAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
