@@ -68,7 +68,7 @@ const sendPushNotificationAfterOneDay = async () => {
     // console.log('notificationData', notificationData);
     const notificationInfo = await User.aggregate(aggregateArray);
     // console.log('notfication.length', notificationInfo.length);
-    for (let i = 0; i != notificationInfo.length; i++) {
+    for (let i = 0; i !== notificationInfo.length; i++) {
       //   console.log('<<<<notificationInfo>>>>>', notificationInfo[i].fcm);
       admin
         .messaging()

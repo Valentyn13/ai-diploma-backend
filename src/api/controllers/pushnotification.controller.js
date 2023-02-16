@@ -7,7 +7,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-exports.sendPushNotification = async (req, res) => {
+exports.sendPushNotification = async (req, res, next) => {
   try {
     const arr = await Meditation.find({});
     console.log('arr', arr);
