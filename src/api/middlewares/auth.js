@@ -79,7 +79,8 @@ exports.fbAuthenticate = async (req, res, next) => {
           password: 'nopass',
         };
         const user = await new User(newData).save();
-
+        const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
+        await axios.post(url, user);
         req.user = user;
         next();
       }

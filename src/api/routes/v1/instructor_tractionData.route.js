@@ -1,7 +1,8 @@
 const express = require('express');
-const controller = require('../../controllers/pushnotification.controller');
+const controller = require('../../controllers/instructor_tractionData.controller');
 
 const router = express.Router();
+const {authorize, ADMIN, LOGGED_USER} = require('../../middlewares/auth');
 
 router
   .route('/')
@@ -18,6 +19,6 @@ router
    *
    * @apiError (Unauthorized 401)  Unauthorized  Only authenticated users can access the data
   //  */
-  .get(controller.sendPushNotification);
+  .post(authorize(), controller.saveInstructor_tractionData);
 
 module.exports = router;

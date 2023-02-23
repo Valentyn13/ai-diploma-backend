@@ -2,7 +2,7 @@ const Meditation = require('../models/meditation.model');
 const Course = require('../models/course.model');
 const Category = require('../models/category.model');
 const Instructor = require('../models/instructor.model');
-
+const castToMongoID = require('../utils').castToMongoID;
 /**
  * Get meditation list
  * @public
@@ -32,6 +32,19 @@ exports.listAll = async (req, res, next) => {
       instructors,
     });
   } catch (error) {
+    next(error);
+  }
+};
+exports.updateMeditationCount = async (req, res, next) => {
+  try {
+    const {data} = req.body;
+    const id = castToMongoID(data);
+
+    const findMeditation = await Meditation.updateOne({_id: id}, {$inc: {count: 1}});
+
+    return res.json('success');
+  } catch (error) {
+    console.log('error', error);
     next(error);
   }
 };

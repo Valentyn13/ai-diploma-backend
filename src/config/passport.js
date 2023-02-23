@@ -4,7 +4,7 @@ const {ExtractJwt} = require('passport-jwt');
 const {jwtSecret} = require('./vars');
 const authProviders = require('../api/services/authProviders');
 const User = require('../api/models/user.model');
-
+const Axios = require('axios');
 const jwtOptions = {
   secretOrKey: jwtSecret,
   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer'),
@@ -37,6 +37,8 @@ const oAuth = (service) => async (req, token, done) => {
         categories,
       };
       const user = await User.oAuthLogin(extendedUserData);
+      const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
+      await axios.post(url, user);
       return done(null, user);
     }
     const userData = await authProviders[service](token);

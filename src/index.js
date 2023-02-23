@@ -7,6 +7,7 @@ var cron = require('node-cron');
 const mongoose = require('./config/mongoose');
 const cronfun = require('./api/utils/cronJobs');
 // open mongoose connection
+
 mongoose.connect();
 
 // listen to requests
