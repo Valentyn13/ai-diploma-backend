@@ -177,12 +177,14 @@ userSchema.statics = {
    */
   async findAndGenerateToken(options) {
     const {email, password, refreshObject} = options;
+    console.log('refreshObject', refreshObject);
     if (!email)
       throw new APIError({
         message: 'An email is required to generate a token',
       });
 
     const user = await this.findOne({email}).exec();
+    console.log('user', user);
     const err = {
       status: httpStatus.UNAUTHORIZED,
       isPublic: true,

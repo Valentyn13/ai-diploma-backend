@@ -28,6 +28,9 @@ const categorySchema = new mongoose.Schema(
     order: {
       type: Number,
     },
+    isCategoryLocked: {
+      type: Boolean,
+    },
   },
   {
     timestamps: true,

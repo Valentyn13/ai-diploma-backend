@@ -76,7 +76,6 @@ exports.login = async (req, res, next) => {
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
     const token = generateTokenResponse(user, accessToken);
     const findFcm = await FcmToken.find({fcm: fcmToken});
-    console.log('findFcm', findFcm);
     if (!findFcm || findFcm.length < 1) {
       const newfcmToken = new FcmToken({
         userId: user._id,

@@ -28,6 +28,9 @@ const courseSchema = new mongoose.Schema(
     subTitle: {
       type: String,
     },
+    isCategoryLocked: {
+      type: Boolean,
+    },
   },
   {
     timestamps: true,

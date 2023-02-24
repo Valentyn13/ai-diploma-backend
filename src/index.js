@@ -16,7 +16,7 @@ app.listen(port, () => {
   //     // console.log('i am crone ');
   //     cronfun.sendPushNotificationAfterOneDay();
   //   });
-  logger.info(`server started on port ${port} (${env})`);
+  logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
 
 // task.start();

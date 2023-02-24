@@ -119,14 +119,22 @@ exports.syncUserPreferences = (req, res, next) => {
     .catch((e) => next(e));
 };
 
-exports.syncUserProgress = (req, res, next) => {
+exports.syncUserProgress = async (req, res, next) => {
   const userProgress = req.body;
-  const {user} = req.locals;
-  user.userProgress = userProgress;
-  user
-    .save()
-    .then((savedUser) => res.json(savedUser.transform()))
-    .catch((e) => next(e));
+
+  if (userProgress.minutesPracticed > 0) {
+    const {user} = req.locals;
+    user.userProgress = userProgress;
+    user
+      .save()
+      .then((savedUser) => {
+        console.log('savedUser', savedUser);
+        res.json(savedUser.transform());
+      })
+      .catch((e) => next(e));
+  } else {
+    return res.json(user);
+  }
 };
 
 exports.deleteUserData = async (req, res, next) => {
