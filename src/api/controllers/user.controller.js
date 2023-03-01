@@ -128,7 +128,6 @@ exports.syncUserProgress = async (req, res, next) => {
     user
       .save()
       .then((savedUser) => {
-        console.log('savedUser', savedUser);
         res.json(savedUser.transform());
       })
       .catch((e) => next(e));

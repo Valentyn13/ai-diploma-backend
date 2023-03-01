@@ -77,7 +77,12 @@ const userSchema = new mongoose.Schema(
       recentTransactionID: String,
       purchasedAt: Date,
     },
+    isNotification: {
+      type: 'Boolean',
+      default: false,
+    },
   },
+
   {
     timestamps: true,
   },
@@ -184,7 +189,7 @@ userSchema.statics = {
       });
 
     const user = await this.findOne({email}).exec();
-    console.log('user', user);
+
     const err = {
       status: httpStatus.UNAUTHORIZED,
       isPublic: true,
