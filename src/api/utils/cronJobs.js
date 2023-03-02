@@ -2,9 +2,11 @@ const User = require('../models/user.model');
 var admin = require('firebase-admin');
 var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
 const Notification = require('../models/notification.model');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 const sendPushNotificationAfterOneDay = async () => {
   try {
-    console.log('cron job called');
     const aggregateArray = [
       {
         $addFields: {
@@ -98,6 +100,44 @@ const sendPushNotificationAfterOneDay = async () => {
   }
 };
 
+const initializeNotification = async () => {
+  try {
+    const aggregateArray = [
+      {
+        $match: {
+          isNotification: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'fcmtokens',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'notificationInfo',
+        },
+      },
+      {
+        $unwind: '$notificationInfo',
+      },
+      {
+        $project: {
+          fcmtoken: '$notificationInfo.fcm',
+          isNotification: 1,
+          notificationTime: 1,
+          userId: '$_id',
+          name: 1,
+        },
+      },
+    ];
+
+    const userNotificationinfo = await User.aggregate(aggregateArray);
+    for (let i = 0; i !== userNotificationinfo.length; i++) {}
+
+    const findUser = {};
+  } catch (error) {
+    console.log('error', error);
+  }
+};
 module.exports = {
   sendPushNotificationAfterOneDay,
 };
