@@ -130,17 +130,14 @@ const initializeNotification = async () => {
     ];
 
     const notificationData = await Notification.findOne({type: 'custom'});
-
     const userNotificationinfo = await User.aggregate(aggregateArray);
     for (let i = 0; i !== userNotificationinfo.length; i++) {
       let userId = userNotificationinfo[i].userId.toString();
-
       cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
-
+     
       let hour = new Date(userNotificationinfo[i].notificationTime).getHours();
       let mints = new Date(userNotificationinfo[i].notificationTime).getMinutes();
-      const jobSchedule = `${mints} ${hour} * * * *`;
-
+      const jobSchedule = `0 ${mints} ${hour} * * *`;
       cron.scheduleJob(userId, jobSchedule, () => {
         admin
           .messaging()

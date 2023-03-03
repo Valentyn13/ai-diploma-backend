@@ -229,22 +229,19 @@ exports.SaveNotification = async (req, res, next) => {
     //   credential: admin.credential.cert(serviceAccount),
     // });
     const {user} = req.locals;
-    console.log('user', user);
     const {data} = req.body;
     let hour = new Date(data).getHours();
     let mints = new Date(data).getMinutes();
 
     const findandUpdate = await User.findOneAndUpdate({_id: user._id}, {notificationTime: data, isNotification: true});
-    console.log(`selectedTime${hour} mints ${mints}`);
     const userId = user._id.toString();
 
     cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
 
-    const jobSchedule = `${mints} ${hour} * * * *`;
+    const jobSchedule = `0 ${mints} ${hour} * * *`;
 
     cron.scheduleJob(userId, jobSchedule, async () => {
       const notificationData = await Notification.findOne({type: 'custom'});
-      console.log('notificationData', notificationData);
       const fcmTokens = await FcmToken.find({userId: user._id});
       // console.log('fcmTokens', fcmTokens);
       for (let i = 0; i !== fcmTokens.length; i++) {
