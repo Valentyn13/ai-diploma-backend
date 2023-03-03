@@ -155,7 +155,7 @@ exports.cancelSubscription = async (user, reason) => {
     const info = await transport.sendMail({
       from: sender,
       // to: 'tom@rega.co.il',
-      to: 'malikkaleem171@gmail.com',
+      to: 'tom@rega.co.il',
       subject: 'User from Regaapp request',
       html: temp,
     });

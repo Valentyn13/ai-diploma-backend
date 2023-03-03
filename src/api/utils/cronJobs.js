@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 var admin = require('firebase-admin');
+const cron = require('node-schedule');
 var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
 const Notification = require('../models/notification.model');
 admin.initializeApp({
@@ -90,11 +91,9 @@ const sendPushNotificationAfterOneDay = async () => {
           },
         })
         .then((msg) => {
-          //   console.log('mmmeme', msg);
+          console.log('message send', msg);
         });
     }
-
-    // console.log('i am call');
   } catch (error) {
     console.log('error', error);
   }
@@ -130,14 +129,46 @@ const initializeNotification = async () => {
       },
     ];
 
-    const userNotificationinfo = await User.aggregate(aggregateArray);
-    for (let i = 0; i !== userNotificationinfo.length; i++) {}
+    const notificationData = await Notification.findOne({type: 'custom'});
 
-    const findUser = {};
+    const userNotificationinfo = await User.aggregate(aggregateArray);
+    for (let i = 0; i !== userNotificationinfo.length; i++) {
+      let userId = userNotificationinfo[i].userId.toString();
+
+      cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
+
+      let hour = new Date(userNotificationinfo[i].notificationTime).getHours();
+      let mints = new Date(userNotificationinfo[i].notificationTime).getMinutes();
+      const jobSchedule = `${mints} ${hour} * * * *`;
+
+      cron.scheduleJob(userId, jobSchedule, () => {
+        admin
+          .messaging()
+          .send({
+            token: userNotificationinfo[i].fcmtoken,
+            notification: {body: notificationData.body, title: notificationData.title},
+            android: {
+              notification: {
+                body: notificationData.body,
+                title: notificationData.title,
+                color: '#fff566',
+                priority: 'high',
+                sound: 'default',
+                vibrateTimingsMillis: [200, 500, 800],
+                imageUrl: notificationData.imageUrl,
+              },
+            },
+          })
+          .then((msg) => {
+            console.log('mmmeme', msg);
+          });
+      });
+    }
   } catch (error) {
     console.log('error', error);
   }
 };
 module.exports = {
   sendPushNotificationAfterOneDay,
+  initializeNotification,
 };
