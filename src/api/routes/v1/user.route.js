@@ -188,4 +188,7 @@ router.route('/progress/:userId').post(authorize(LOGGED_USER), controller.syncUs
 router.route('/deleteUserData/:userId').get(authorize(LOGGED_USER), controller.deleteUserData);
 router.route('/updateProfile/:userId').post(authorize(LOGGED_USER), controller.updateProfile);
 router.route('/changePassword/:userId').post(authorize(LOGGED_USER), controller.changePassword);
+router.route('/cancelSubsciption/:userId').post(authorize(LOGGED_USER), controller.sendCancelSubscriptionEmail);
+router.route('/saveNotification/:userId').post(authorize(LOGGED_USER), controller.SaveNotification);
+
 module.exports = router;

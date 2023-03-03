@@ -124,3 +124,50 @@ exports.deleteUserData = async (user) => {
     return false;
   }
 };
+
+exports.cancelSubscription = async (user, reason) => {
+  try {
+    const serviceClient = process.env.SERVICE_CLIENT;
+    let privateKey = process.env.PRIVATE_KEY;
+    privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
+    const port = process.env.EMAIL_PORT;
+    const sender = process.env.EMAIL_USERNAME;
+    const transport = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port,
+      secure: true,
+      auth: {
+        type: 'OAuth2',
+        user: sender,
+        serviceClient,
+        privateKey,
+      },
+    });
+
+    // verify connection configuration
+    transport.verify((error) => {
+      if (error) {
+        console.log('error with email connection', error);
+      }
+    });
+    const temp = emailTemplate.cancelSubscitionTemplate(user.name, user._id, user.email, reason);
+
+    const info = await transport.sendMail({
+      from: sender,
+      // to: 'tom@rega.co.il',
+      to: 'tom@rega.co.il',
+      subject: 'User from Regaapp request',
+      html: temp,
+    });
+
+    if (info.messageId) {
+      transport.close();
+      return true;
+    }
+    transport.close();
+    return false;
+  } catch (error) {
+    console.log('Oops! some error occurred on sendEmail(). Error is: ', error);
+    return false;
+  }
+};

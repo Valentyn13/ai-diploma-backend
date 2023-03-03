@@ -38,4 +38,6 @@ router
    */
   .get(authorize(LOGGED_USER_NO_ID), controller.listAll);
 
+router.route('/UpdateMeditationCount').post(authorize(LOGGED_USER_NO_ID), controller.updateMeditationCount);
+
 module.exports = router;

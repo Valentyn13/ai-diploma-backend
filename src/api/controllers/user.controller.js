@@ -1,8 +1,13 @@
 const httpStatus = require('http-status');
 const {omit} = require('lodash');
 const User = require('../models/user.model');
+const Notification = require('../models/notification.model');
+const FcmToken = require('../models/fcmToken.model');
+var admin = require('firebase-admin');
+var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
 const emailProvider = require('../services/emails/emailProvider');
 const APIError = require('../utils/APIError');
+const cron = require('node-schedule');
 const bcrypt = require('bcryptjs');
 const {env} = require('../../config/vars');
 
@@ -119,14 +124,21 @@ exports.syncUserPreferences = (req, res, next) => {
     .catch((e) => next(e));
 };
 
-exports.syncUserProgress = (req, res, next) => {
+exports.syncUserProgress = async (req, res, next) => {
   const userProgress = req.body;
-  const {user} = req.locals;
-  user.userProgress = userProgress;
-  user
-    .save()
-    .then((savedUser) => res.json(savedUser.transform()))
-    .catch((e) => next(e));
+
+  if (userProgress.minutesPracticed > 0) {
+    const {user} = req.locals;
+    user.userProgress = userProgress;
+    user
+      .save()
+      .then((savedUser) => {
+        res.json(savedUser.transform());
+      })
+      .catch((e) => next(e));
+  } else {
+    return res.json(user);
+  }
 };
 
 exports.deleteUserData = async (req, res, next) => {
@@ -193,5 +205,73 @@ exports.changePassword = async (req, res, next) => {
   } catch (error) {
     console.log('error', error);
     return next(error);
+  }
+};
+
+exports.sendCancelSubscriptionEmail = async (req, res, next) => {
+  try {
+    const {user} = req.locals;
+    if (user) {
+      await emailProvider.cancelSubscription(user, req.body.data.reason);
+      res.status(httpStatus.OK);
+      return res.json('success');
+    }
+  } catch (error) {
+    console.log('<<<<<<<error>>>>>>>', error);
+    // res.status(httpStatus.BAD_GATEWAY);
+    return next(error);
+  }
+};
+
+exports.SaveNotification = async (req, res, next) => {
+  try {
+    // admin.initializeApp({
+    //   credential: admin.credential.cert(serviceAccount),
+    // });
+    const {user} = req.locals;
+    console.log('user', user);
+    const {data} = req.body;
+    let hour = new Date(data).getHours();
+    let mints = new Date(data).getMinutes();
+
+    const findandUpdate = await User.findOneAndUpdate({_id: user._id}, {notificationTime: data, isNotification: true});
+    console.log(`selectedTime${hour} mints ${mints}`);
+    const userId = user._id.toString();
+
+    cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
+
+    const jobSchedule = `${mints} ${hour} * * * *`;
+
+    cron.scheduleJob(userId, jobSchedule, async () => {
+      const notificationData = await Notification.findOne({type: 'custom'});
+      console.log('notificationData', notificationData);
+      const fcmTokens = await FcmToken.find({userId: user._id});
+      // console.log('fcmTokens', fcmTokens);
+      for (let i = 0; i !== fcmTokens.length; i++) {
+        //   console.log('<<<<notificationInfo>>>>>', notificationInfo[i].fcm);
+        admin
+          .messaging()
+          .send({
+            token: fcmTokens[i].fcm,
+            notification: {body: notificationData.body, title: notificationData.title},
+            android: {
+              notification: {
+                body: notificationData.body,
+                title: notificationData.title,
+                color: '#fff566',
+                priority: 'high',
+                sound: 'default',
+                vibrateTimingsMillis: [200, 500, 800],
+                imageUrl: notificationData.imageUrl,
+              },
+            },
+          })
+          .then((msg) => {
+            console.log('mmmeme', msg);
+          });
+      }
+    });
+  } catch (error) {
+    console.log('XXXX-XXXXXX-XXXX', error);
   }
 };

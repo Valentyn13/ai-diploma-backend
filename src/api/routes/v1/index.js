@@ -7,6 +7,7 @@ const categoryRoutes = require('./category.route');
 const courseRoutes = require('./course.route');
 const instructorRoutes = require('./instructor.route');
 const revenuecatRoutes = require('./revenuecat.route');
+const instructor_tractionData = require('./instructor_tractionData.route.js');
 
 const router = express.Router();
 
@@ -28,5 +29,6 @@ router.use('/categories', categoryRoutes);
 router.use('/courses', courseRoutes);
 router.use('/instructors', instructorRoutes);
 router.use('/revenuecat', revenuecatRoutes);
+router.use('/instructor_tractionData', instructor_tractionData);
 
 module.exports = router;

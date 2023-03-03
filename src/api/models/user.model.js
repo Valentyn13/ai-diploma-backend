@@ -77,7 +77,15 @@ const userSchema = new mongoose.Schema(
       recentTransactionID: String,
       purchasedAt: Date,
     },
+    isNotification: {
+      type: 'Boolean',
+      default: false,
+    },
+    notificationTime: {
+      type: Date,
+    },
   },
+
   {
     timestamps: true,
   },
@@ -177,12 +185,14 @@ userSchema.statics = {
    */
   async findAndGenerateToken(options) {
     const {email, password, refreshObject} = options;
+    console.log('refreshObject', refreshObject);
     if (!email)
       throw new APIError({
         message: 'An email is required to generate a token',
       });
 
     const user = await this.findOne({email}).exec();
+
     const err = {
       status: httpStatus.UNAUTHORIZED,
       isPublic: true,
