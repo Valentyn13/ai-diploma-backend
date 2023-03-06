@@ -12,10 +12,10 @@ mongoose.connect();
 
 // listen to requests
 app.listen(port, () => {
-  cron.schedule('0 */12 * * *', () => {
+  cron.schedule('0 */24 * * *', () => {
     cronfun.sendPushNotificationAfterOneDay();
   });
-   cronfun.initializeNotification();
+  cronfun.initializeNotification();
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
 
