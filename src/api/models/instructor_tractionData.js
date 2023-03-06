@@ -59,4 +59,4 @@ instructor_tractionDataSchema.statics = {
 /**
  * @typedef instructor_tractionData
  */
-module.exports = mongoose.model('Instructor_tractionDataSchema', instructor_tractionDataSchema);
+module.exports = mongoose.model('Instructor_tractionData', instructor_tractionDataSchema);
