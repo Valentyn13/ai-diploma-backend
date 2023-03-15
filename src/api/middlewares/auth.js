@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const passport = require('passport');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError');
-const Axios = require('axios');
+const axios = require('axios');
 
 const ADMIN = 'admin';
 const LOGGED_USER = '_loggedUser';
@@ -60,7 +60,7 @@ exports.fbAuthenticate = async (req, res, next) => {
       method: 'get',
       url: `https://graph.facebook.com/v15.0/me?fields=email%2Cid%2Cfirst_name%2Clast_name&access_token=${access_token}`,
     };
-    const response = await Axios(config);
+    const response = await axios(config);
     if (response) {
       const finduser = await User.findOne({email: response.data.email});
       if (finduser) {
@@ -86,6 +86,39 @@ exports.fbAuthenticate = async (req, res, next) => {
       }
     }
   } catch (error) {
+    const apiError = new APIError({
+      message: error ? error.message : 'some thing went wrong',
+      status: httpStatus[500],
+      stack: error ? error.stack : undefined,
+    });
+    return next(apiError);
+  }
+};
+
+exports.AppleAuthenticate = async (req, res, next) => {
+  try {
+    let service = 'apple';
+    if (service === 'apple') {
+      const {sex, categories, email, sub, name} = req.body;
+      const userData = {
+        service: 'apple',
+        email,
+        id: sub,
+        name,
+      };
+      const extendedUserData = {
+        ...userData,
+        sex,
+        categories,
+      };
+      const user = await User.oAuthLogin(extendedUserData);
+      const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
+      await axios.post(url, user);
+      req.user = user;
+      next();
+    }
+  } catch (error) {
+    console.log('error', error);
     const apiError = new APIError({
       message: error ? error.message : 'some thing went wrong',
       status: httpStatus[500],

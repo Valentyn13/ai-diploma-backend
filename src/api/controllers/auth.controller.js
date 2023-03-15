@@ -73,6 +73,7 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const {fcmToken} = req.body;
+
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
     const token = generateTokenResponse(user, accessToken);
     const findFcm = await FcmToken.find({fcm: fcmToken});

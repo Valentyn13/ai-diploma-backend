@@ -2,7 +2,7 @@ const express = require('express');
 const validate = require('express-validation');
 const controller = require('../../controllers/auth.controller');
 const oAuthLogin = require('../../middlewares/auth').oAuth;
-const {fbAuthenticate} = require('../../middlewares/auth');
+const {fbAuthenticate, AppleAuthenticate} = require('../../middlewares/auth');
 const {
   login,
   register,
@@ -154,6 +154,6 @@ router.route('/google').post(validate(oAuth), oAuthLogin('google'), controller.o
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
-router.route('/apple').post(validate(oAuth), oAuthLogin('apple'), controller.oAuth);
+router.route('/apple').post(AppleAuthenticate, controller.oAuth);
 
 module.exports = router;
