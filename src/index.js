@@ -15,6 +15,9 @@ app.listen(port, () => {
   cron.schedule('0 */24 * * *', () => {
     cronfun.sendPushNotificationAfterOneDay();
   });
+  cron.schedule('*/10 * * * *', () => {
+    cronfun.sendManualhNotification();
+  });
   cronfun.initializeNotification();
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });

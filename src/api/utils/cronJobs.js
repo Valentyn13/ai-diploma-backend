@@ -92,6 +92,8 @@ const sendPushNotificationAfterOneDay = async () => {
         })
         .then((msg) => {
           console.log('message send', msg);
+        }).catch((err) => {
+          console.log('failed to send message', err);
         });
     }
   } catch (error) {
@@ -159,6 +161,8 @@ const initializeNotification = async () => {
           })
           .then((msg) => {
             console.log('mmmeme', msg);
+          }).catch((err) => {
+            console.log('failed to send message', err);
           });
       });
     }
@@ -166,7 +170,89 @@ const initializeNotification = async () => {
     console.log('error', error);
   }
 };
+
+const sendManualhNotification = async () => {
+  try {
+    const aggregateArray = (testNotification) => ([
+      {
+        $addFields: {
+          currDate: new Date(),
+        },
+      },
+      {
+        $match: {
+          ...(testNotification ? {'manualNotificationTester': true} : {}),
+        },
+      },
+      {
+        $lookup: {
+          from: 'fcmtokens',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'notificationInfo',
+        },
+      },
+      {
+        $unwind: '$notificationInfo',
+      },
+      {
+        $project: {
+          fcmtoken: '$notificationInfo.fcm',
+          isNotification: 1,
+          notificationTime: 1,
+          userId: '$_id',
+          name: 1,
+        },
+      },
+    ]);
+
+    let currentDate = new Date().toISOString();
+
+    const notificationData = await Notification.findOneAndUpdate({type: 'manual', sent: false, sendAt: { $lte: currentDate }}, {sent: true});
+
+    if (notificationData != null) {
+      
+      const userNotificationInfo = await User.aggregate(aggregateArray(notificationData.test));  
+
+      console.log(`${currentDate} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
+
+      for (let i = 0; i !== userNotificationInfo.length; i++) {
+        // console.log('<<<<notificationInfo>>>>>', userNotificationInfo[i].fcmtoken);
+        admin
+          .messaging()
+          .send({
+            token: userNotificationInfo[i].fcmtoken,
+            notification: {body: notificationData.body, title: notificationData.title},
+            android: {
+              notification: {
+                body: notificationData.body,
+                title: notificationData.title,
+                color: '#fff566',
+                priority: 'high',
+                sound: 'default',
+                vibrateTimingsMillis: [200, 500, 800],
+                imageUrl: notificationData.imageUrl,
+              },
+            },
+          })
+          .then((msg) => {
+            console.log('message send', msg);
+          }).catch((err) => {
+            console.log('failed to send message', err);
+          }) 
+      }
+
+    } else {
+      console.log(`${currentDate} - no manual notifications found`);
+    }
+
+  } catch (error) {
+    console.log('error', error);
+  }
+};
+
 module.exports = {
   sendPushNotificationAfterOneDay,
   initializeNotification,
+  sendManualhNotification,
 };
