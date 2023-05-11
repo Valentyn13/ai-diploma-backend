@@ -240,6 +240,7 @@ exports.SaveNotification = async (req, res, next) => {
 
     const jobSchedule = `0 ${mints} ${hour} * * *`;
 
+    // schedule cron job for specific user
     cron.scheduleJob(userId, jobSchedule, async () => {
       const notificationData = await Notification.findOne({type: 'custom'});
       const fcmTokens = await FcmToken.find({userId: user._id});

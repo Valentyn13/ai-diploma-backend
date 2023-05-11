@@ -138,6 +138,7 @@ const initializeNotification = async () => {
       let hour = new Date(userNotificationinfo[i].notificationTime).getHours();
       let mints = new Date(userNotificationinfo[i].notificationTime).getMinutes();
       const jobSchedule = `0 ${mints} ${hour} * * *`;
+      // schedule cron job for each user
       cron.scheduleJob(userId, jobSchedule, () => {
         admin
           .messaging()
