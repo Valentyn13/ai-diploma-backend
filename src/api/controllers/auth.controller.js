@@ -33,7 +33,7 @@ function generateTokenResponse(user, accessToken) {
 exports.register = async (req, res, next) => {
   try {
     const {email, password, name, picture, sex, categories, fcmToken} = req.body;
-    logger.log('register', {fcmToken});
+    logger.info('register', {fcmToken});
     const userData = {
       email,
       password,
@@ -49,7 +49,7 @@ exports.register = async (req, res, next) => {
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
     const findFcm = await FcmToken.find({fcm: fcmToken});
-    logger.log('findFcm', findFcm);
+    logger.info('findFcm', findFcm);
     if (!findFcm || findFcm.length < 1) {
       const newfcmToken = new FcmToken({
         userId: user._id,
@@ -74,8 +74,8 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const {fcmToken} = req.body;
-    logger.log('register', {fcmToken});
-    
+    logger.info('login', {fcmToken});
+
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
     const token = generateTokenResponse(user, accessToken);
     // TODO: query also by user id, fcmToken may be related to another user that logged in to the same device !

@@ -92,7 +92,7 @@ const sendPushNotificationAfterOneDay = async () => {
           },
         })
         .then((msg) => {
-          logger.log('message sent', {fcm: notificationInfo[i].fcm, msg});
+          logger.info('message sent', {fcm: notificationInfo[i].fcm, msg});
         }).catch((err) => {
           logger.error('failed to send message', err);
         });
@@ -161,7 +161,7 @@ const initializeNotification = async () => {
             },
           })
           .then((msg) => {
-            logger.log('message sent', {fcm: userNotificationinfo[i].fcmtoken, msg});
+            logger.info('message sent', {fcm: userNotificationinfo[i].fcmtoken, msg});
           }).catch((err) => {
             logger.error('failed to send message', err);
           });
@@ -237,14 +237,14 @@ const sendManualhNotification = async () => {
             },
           })
           .then((msg) => {
-            logger.log('message sent', {fcm: userNotificationInfo[i].fcmtoken, msg});
+            logger.info('message sent', {fcm: userNotificationInfo[i].fcmtoken, msg});
           }).catch((err) => {
             logger.error('failed to send message', err);
           }) 
       }
 
     } else {
-      logger.log(`${currentDate} - no manual notifications found`);
+      logger.info(`${currentDate} - no manual notifications found`);
     }
 
   } catch (error) {

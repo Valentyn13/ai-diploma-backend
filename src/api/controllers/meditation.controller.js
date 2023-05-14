@@ -45,7 +45,7 @@ exports.updateMeditationCount = async (req, res, next) => {
 
     return res.json('success');
   } catch (error) {
-    logger.log('updateMeditationCount failed', error);
+    logger.info('updateMeditationCount failed', error);
     next(error);
   }
 };
