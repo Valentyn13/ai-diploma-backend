@@ -3,6 +3,7 @@ const passport = require('passport');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError');
 const axios = require('axios');
+const logger = require('../../config/logger');
 
 const ADMIN = 'admin';
 const LOGGED_USER = '_loggedUser';
@@ -118,7 +119,7 @@ exports.AppleAuthenticate = async (req, res, next) => {
       next();
     }
   } catch (error) {
-    console.log('error', error);
+    logger.error('AppleAuthenticate failed', error);
     const apiError = new APIError({
       message: error ? error.message : 'some thing went wrong',
       status: httpStatus[500],

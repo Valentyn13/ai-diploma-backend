@@ -2,6 +2,7 @@ const Meditation = require('../models/meditation.model');
 const Course = require('../models/course.model');
 const Category = require('../models/category.model');
 const Instructor = require('../models/instructor.model');
+const logger = require('../../config/logger');
 const castToMongoID = require('../utils').castToMongoID;
 /**
  * Get meditation list
@@ -44,7 +45,7 @@ exports.updateMeditationCount = async (req, res, next) => {
 
     return res.json('success');
   } catch (error) {
-    console.log('error', error);
+    logger.log('updateMeditationCount failed', error);
     next(error);
   }
 };

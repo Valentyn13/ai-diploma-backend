@@ -10,6 +10,7 @@ const APIError = require('../utils/APIError');
 const cron = require('node-schedule');
 const bcrypt = require('bcryptjs');
 const {env} = require('../../config/vars');
+const logger = require('../../config/logger');
 
 /**
  * Load user and append to req.
@@ -154,7 +155,7 @@ exports.deleteUserData = async (req, res, next) => {
       message: 'No account found with that email',
     });
   } catch (error) {
-    console.log('error', error);
+    logger.error('deleteUserData failed', error);
     return next(error);
   }
 };
@@ -203,7 +204,7 @@ exports.changePassword = async (req, res, next) => {
       message: 'try later',
     });
   } catch (error) {
-    console.log('error', error);
+    logger.error('changePassword failed', error);
     return next(error);
   }
 };
@@ -217,13 +218,14 @@ exports.sendCancelSubscriptionEmail = async (req, res, next) => {
       return res.json('success');
     }
   } catch (error) {
-    console.log('<<<<<<<error>>>>>>>', error);
+    // console.log('<<<<<<<error>>>>>>>', error);
     // res.status(httpStatus.BAD_GATEWAY);
+    logger.error('failed to send sendCancelSubscriptionEmail', error);
     return next(error);
   }
 };
 
-exports.SaveNotification = async (req, res, next) => {
+exports.saveNotification = async (req, res, next) => {
   try {
     // admin.initializeApp({
     //   credential: admin.credential.cert(serviceAccount),
@@ -265,11 +267,13 @@ exports.SaveNotification = async (req, res, next) => {
             },
           })
           .then((msg) => {
-            console.log('mmmeme', msg);
+            logger.error('message sent', {fcm: fcmTokens[i].fcm, msg});
+          }).catch((err) => {
+            logger.error('failed to send message', err);
           });
       }
     });
   } catch (error) {
-    console.log('XXXX-XXXXXX-XXXX', error);
+    logger.error('saveNotification failed', error);
   }
 };

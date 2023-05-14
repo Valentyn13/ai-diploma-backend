@@ -3,6 +3,7 @@ var admin = require('firebase-admin');
 const cron = require('node-schedule');
 var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
 const Notification = require('../models/notification.model');
+const logger = require('../../config/logger');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -91,13 +92,13 @@ const sendPushNotificationAfterOneDay = async () => {
           },
         })
         .then((msg) => {
-          console.log('message send', msg);
+          logger.log('message sent', {fcm: notificationInfo[i].fcm, msg});
         }).catch((err) => {
-          console.log('failed to send message', err);
+          logger.error('failed to send message', err);
         });
     }
   } catch (error) {
-    console.log('error', error);
+    logger.error('sendPushNotificationAfterOneDay failed', error);
   }
 };
 
@@ -160,25 +161,25 @@ const initializeNotification = async () => {
             },
           })
           .then((msg) => {
-            console.log('mmmeme', msg);
+            logger.log('message sent', {fcm: userNotificationinfo[i].fcmtoken, msg});
           }).catch((err) => {
-            console.log('failed to send message', err);
+            logger.error('failed to send message', err);
           });
       });
     }
   } catch (error) {
-    console.log('error', error);
+    logger.error('initializeNotification failed', error);
   }
 };
 
 const sendManualhNotification = async () => {
   try {
     const aggregateArray = (testNotification) => ([
-      {
-        $addFields: {
-          currDate: new Date(),
-        },
-      },
+      // {
+      //   $addFields: {
+      //     currDate: new Date(),
+      //   },
+      // },
       {
         $match: {
           ...(testNotification ? {'manualNotificationTester': true} : {}),
@@ -236,18 +237,18 @@ const sendManualhNotification = async () => {
             },
           })
           .then((msg) => {
-            console.log('message send', msg);
+            logger.log('message sent', {fcm: userNotificationInfo[i].fcmtoken, msg});
           }).catch((err) => {
-            console.log('failed to send message', err);
+            logger.error('failed to send message', err);
           }) 
       }
 
     } else {
-      console.log(`${currentDate} - no manual notifications found`);
+      logger.log(`${currentDate} - no manual notifications found`);
     }
 
   } catch (error) {
-    console.log('error', error);
+    logger.error('sendManualhNotification failed', error);
   }
 };
 

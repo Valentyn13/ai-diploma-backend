@@ -185,7 +185,7 @@ userSchema.statics = {
    */
   async findAndGenerateToken(options) {
     const {email, password, refreshObject} = options;
-    console.log('refreshObject', refreshObject);
+    // console.log('refreshObject', refreshObject);
     if (!email)
       throw new APIError({
         message: 'An email is required to generate a token',

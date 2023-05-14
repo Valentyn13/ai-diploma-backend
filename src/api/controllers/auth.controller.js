@@ -8,6 +8,7 @@ const {jwtExpirationInterval} = require('../../config/vars');
 const APIError = require('../utils/APIError');
 const emailProvider = require('../services/emails/emailProvider');
 const axios = require('axios');
+const logger = require('../../config/logger');
 
 /**
  * Returns a formated object with tokens
@@ -32,7 +33,7 @@ function generateTokenResponse(user, accessToken) {
 exports.register = async (req, res, next) => {
   try {
     const {email, password, name, picture, sex, categories, fcmToken} = req.body;
-    console.log('fcm', fcmToken);
+    logger.log('register', {fcmToken});
     const userData = {
       email,
       password,
@@ -48,7 +49,7 @@ exports.register = async (req, res, next) => {
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
     const findFcm = await FcmToken.find({fcm: fcmToken});
-    console.log('findFcm', findFcm);
+    logger.log('findFcm', findFcm);
     if (!findFcm || findFcm.length < 1) {
       const newfcmToken = new FcmToken({
         userId: user._id,
@@ -73,9 +74,11 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const {fcmToken} = req.body;
-
+    logger.log('register', {fcmToken});
+    
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
     const token = generateTokenResponse(user, accessToken);
+    // TODO: query also by user id, fcmToken may be related to another user that logged in to the same device !
     const findFcm = await FcmToken.find({fcm: fcmToken});
     if (!findFcm || findFcm.length < 1) {
       const newfcmToken = new FcmToken({
