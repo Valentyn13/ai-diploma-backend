@@ -242,6 +242,8 @@ exports.saveNotification = async (req, res, next) => {
 
     const jobSchedule = `0 ${mints} ${hour} * * *`;
 
+    logger.info(`scehduleing job for user ${user._id} at ${jobSchedule}`);
+    
     // schedule cron job for specific user
     cron.scheduleJob(userId, jobSchedule, async () => {
       const notificationData = await Notification.findOne({type: 'custom'});
