@@ -22,7 +22,7 @@ const jwt = async (payload, done) => {
 
 const oAuth = (service) => async (req, token, done) => {
   try {
-    console.log('service', service);
+    // console.log('service', service);
     if (service === 'apple') {
       const {sex, categories, email, sub, name} = req.body;
       const userData = {
