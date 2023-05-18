@@ -17,12 +17,12 @@ app.listen(port, () => {
     cron.schedule('0 */24 * * *', () => {
       cronfun.sendPushNotificationAfterOneDay();
     });
-    cron.schedule('*/1 * * * *', () => {
-      cronfun.sendManualhNotification();
-    });
     cronfun.initializeNotification();  
   } else {
-    logger.info('skipping crons in dev env');
+    logger.info('skipping crons in dev env (except manual)');
+    cron.schedule('*/10 * * * *', () => {
+      cronfun.sendManualhNotification();
+    });    
   }
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
