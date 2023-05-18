@@ -12,10 +12,18 @@ mongoose.connect();
 
 // listen to requests
 app.listen(port, () => {
-  cron.schedule('0 */24 * * *', () => {
-    cronfun.sendPushNotificationAfterOneDay();
-  });
-  cronfun.initializeNotification();
+  if (process.env.NODE_ENV === 'production') {
+    logger.info('starting cron jobs in production');
+    cron.schedule('0 */24 * * *', () => {
+      cronfun.sendPushNotificationAfterOneDay();
+    });
+    cronfun.initializeNotification();  
+  } else {
+    logger.info('skipping crons in dev env (except manual)');
+    cron.schedule('*/10 * * * *', () => {
+      cronfun.sendManualhNotification();
+    });    
+  }
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
 

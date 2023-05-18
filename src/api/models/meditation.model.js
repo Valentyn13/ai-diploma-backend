@@ -30,6 +30,11 @@ const meditationSchema = new mongoose.Schema(
       type: Boolean,
       index: true,
     },
+    animation: {
+      type: String,
+      maxlength: 256,
+      trim: true,
+    },
     count: {
       type: Number,
     },

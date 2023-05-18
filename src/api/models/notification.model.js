@@ -10,6 +10,12 @@ const notificationSchema = new mongoose.Schema(
     body: {
       type: String,
     },
+    test: {
+      type: Boolean,
+    },
+    sent: {
+      type: Boolean,
+    },
     imageUrl: {type: String},
   },
   {

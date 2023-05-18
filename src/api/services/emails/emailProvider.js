@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const {emailConfig} = require('../../../config/vars');
 const Email = require('email-templates');
 const emailTemplate = require('../../../emailTemplates');
+const logger = require('../../../config/logger');
 
 // SMTP is the main transport in Nodemailer for delivering messages.
 // SMTP is also the protocol used between almost all email hosts, so its truly universal.
@@ -42,7 +43,7 @@ exports.sendPasswordReset = async (passwordResetObject) => {
         passwordResetUrl: `https://your-app/new-password/view?resetToken=${passwordResetObject.resetToken}`,
       },
     })
-    .catch(() => console.log('error sending password reset email'));
+    .catch(() => logger.error('error sending password reset email'));
 };
 
 exports.sendPasswordChangeEmail = async (user) => {
@@ -92,7 +93,7 @@ exports.deleteUserData = async (user) => {
     // verify connection configuration
     transport.verify((error) => {
       if (error) {
-        console.log('error with email connection', error);
+        logger.error('error with email connection', error);
       }
     });
     const temp = emailTemplate.DeleteUserDataEmailTemplate(user.name);
@@ -120,7 +121,7 @@ exports.deleteUserData = async (user) => {
     transport.close();
     return false;
   } catch (error) {
-    console.log('Oops! some error occurred on sendEmail(). Error is: ', error);
+    logger.error('Oops! some error occurred on sendEmail(). Error is: ', error);
     return false;
   }
 };
@@ -147,7 +148,7 @@ exports.cancelSubscription = async (user, reason) => {
     // verify connection configuration
     transport.verify((error) => {
       if (error) {
-        console.log('error with email connection', error);
+        logger.error('error with email connection', error);
       }
     });
     const temp = emailTemplate.cancelSubscitionTemplate(user.name, user._id, user.email, reason);
