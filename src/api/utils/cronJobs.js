@@ -207,7 +207,7 @@ const sendManualhNotification = async () => {
       },
     ]);
 
-    let currentDate = new Date().toISOString();
+    let currentDate = new Date();
 
     const notificationData = await Notification.findOneAndUpdate({type: 'manual', sent: false, sendAt: { $lte: currentDate }}, {sent: true});
 
@@ -215,7 +215,7 @@ const sendManualhNotification = async () => {
       
       const userNotificationInfo = await User.aggregate(aggregateArray(notificationData.test));  
 
-      console.log(`${currentDate} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
+      console.log(`${currentDate.toString()} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
 
       for (let i = 0; i !== userNotificationInfo.length; i++) {
         // console.log('<<<<notificationInfo>>>>>', userNotificationInfo[i].fcmtoken);
