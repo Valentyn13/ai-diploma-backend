@@ -74,7 +74,7 @@ const sendPushNotificationAfterOneDay = async () => {
 
     for (let i = 0; i !== notificationInfo.length; i++) {
       
-      logger.log('sending constant notifiation to new user...', notificationInfo[i].fcm);
+      logger.info('sending constant notifiation to new user...', notificationInfo[i].fcm);
       
       admin
         .messaging()
@@ -146,7 +146,7 @@ const initializeNotification = async () => {
       let mints = new Date(userNotificationinfo[i].notificationTime).getMinutes();
       const jobSchedule = `0 ${mints} ${hour} * * *`;
       
-      logger.log('initializing cron job for user...', {jobSchedule, fcmToken: userNotificationinfo[i].fcmtoken});
+      logger.info('initializing cron job for user...', {jobSchedule, fcmToken: userNotificationinfo[i].fcmtoken});
 
       // schedule cron job for each user
       cron.scheduleJob(userId, jobSchedule, () => {
@@ -222,10 +222,10 @@ const sendManualhNotification = async () => {
       
       const userNotificationInfo = await User.aggregate(aggregateArray(notificationData.test));  
 
-      logger.log(`${currentDate.toString()} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
+      logger.info(`${currentDate.toString()} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
 
       for (let i = 0; i !== userNotificationInfo.length; i++) {
-        logger.log('sending manual notificaion...', userNotificationInfo[i].fcmtoken);
+        logger.info('sending manual notificaion...', userNotificationInfo[i].fcmtoken);
         admin
           .messaging()
           .send({
