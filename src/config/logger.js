@@ -2,9 +2,9 @@ const winston = require('winston');
 
 const logFormat = winston.format.printf(info => {
   const formattedDate = info.timestamp.replace('T', ' ').replace('Z', '');
-  return `${formattedDate} - Rega - ${info.level}|${
+  return `${formattedDate} - Rega - ${info.level} - ${
     info.message
-  };`;
+  }`;
 });
 
 const logger = winston.createLogger({
