@@ -1,10 +1,18 @@
 const winston = require('winston');
 
+const logFormat = winston.format.printf(info => {
+  const formattedDate = info.timestamp.replace('T', ' ').replace('Z', '');
+  return `${formattedDate} - Rega - ${info.level}|${
+    info.message
+  };`;
+});
+
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
     winston.format.timestamp(),
-    winston.format.json()
+    // winston.format.json()
+    logFormat
 ),
   transports: [
     //
@@ -14,7 +22,7 @@ const logger = winston.createLogger({
     // new winston.transports.File({filename: 'error.log', level: 'error'}),
     // new winston.transports.File({filename: 'combined.log'}),
     new winston.transports.File({
-      format: winston.format.simple(),
+      // format: winston.format.simple(),
       level: 'info',
       filename: './logs/all-logs.log',
       handleExceptions: true,

@@ -33,7 +33,7 @@ function generateTokenResponse(user, accessToken) {
 exports.register = async (req, res, next) => {
   try {
     const {email, password, name, picture, sex, categories, fcmToken} = req.body;
-    logger.info('register', {fcmToken});
+    logger.info(`register with fcmToken ${fcmToken}`);
     const userData = {
       email,
       password,
@@ -49,7 +49,7 @@ exports.register = async (req, res, next) => {
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
     const findFcm = await FcmToken.find({fcm: fcmToken});
-    logger.info('findFcm', findFcm);
+    // logger.info('findFcm', findFcm);
     if (!findFcm || findFcm.length < 1) {
       const newfcmToken = new FcmToken({
         userId: user._id,
@@ -74,7 +74,7 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const {fcmToken} = req.body;
-    logger.info('login', {fcmToken});
+    logger.info(`login with fcmToken ${fcmToken}`);
 
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
     const token = generateTokenResponse(user, accessToken);

@@ -74,7 +74,7 @@ const sendPushNotificationAfterOneDay = async () => {
 
     for (let i = 0; i !== notificationInfo.length; i++) {
       
-      logger.info('sending constant notifiation to new user...', notificationInfo[i].fcm);
+      logger.info(`sending constant notifiation to new user with fcm ${notificationInfo[i].fcm}`);
       
       admin
         .messaging()
@@ -94,13 +94,13 @@ const sendPushNotificationAfterOneDay = async () => {
           },
         })
         .then((msg) => {
-          logger.info('message sent', {fcm: notificationInfo[i].fcm, msg});
+          logger.info(`message sent to ${notificationInfo[i].fcm}`);
         }).catch((err) => {
-          logger.error(`failed to send message to fcm ${notificationInfo[i].fcm}` , err.toString());
+          logger.error(`failed to send message to fcm ${notificationInfo[i].fcm}: ${err.toString()}`);
         });
     }
   } catch (error) {
-    logger.error('sendPushNotificationAfterOneDay failed', error);
+    logger.error(`sendPushNotificationAfterOneDay failed: ${error.toString}`);
   }
 };
 
@@ -135,25 +135,28 @@ const initializeNotification = async () => {
     ];
 
     const notificationData = await Notification.findOne({type: 'custom'});
-    const userNotificationinfo = await User.aggregate(aggregateArray);
+    const userNotificationInfo = await User.aggregate(aggregateArray);
 
-    for (let i = 0; i !== userNotificationinfo.length; i++) {
+    for (let i = 0; i !== userNotificationInfo.length; i++) {
 
-      let userId = userNotificationinfo[i].userId.toString();
+      let userId = userNotificationInfo[i].userId.toString();
       cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
      
-      let hour = new Date(userNotificationinfo[i].notificationTime).getHours();
-      let mints = new Date(userNotificationinfo[i].notificationTime).getMinutes();
+      let hour = new Date(userNotificationInfo[i].notificationTime).getHours();
+      let mints = new Date(userNotificationInfo[i].notificationTime).getMinutes();
       const jobSchedule = `0 ${mints} ${hour} * * *`;
       
-      logger.info('initializing cron job for user...', {jobSchedule, fcmToken: userNotificationinfo[i].fcmtoken});
+      logger.info(`initializing cron job for user ${userId} scheduled at ${jobSchedule} with fcm token ${userNotificationInfo[i].fcmtoken}`);
 
       // schedule cron job for each user
       cron.scheduleJob(userId, jobSchedule, () => {
+
+        logger.info(`sending user notificaion to user ${userId} with fcm token ${userNotificationInfo[i].fcmtoken}`);
+        
         admin
           .messaging()
           .send({
-            token: userNotificationinfo[i].fcmtoken,
+            token: userNotificationInfo[i].fcmtoken,
             notification: {body: notificationData.body, title: notificationData.title},
             android: {
               notification: {
@@ -168,14 +171,14 @@ const initializeNotification = async () => {
             },
           })
           .then((msg) => {
-            logger.info('message sent', {fcm: userNotificationinfo[i].fcmtoken, msg});
+            logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
           }).catch((err) => {
-            logger.error(`failed to send message to fcmToken ${userNotificationinfo[i].fcmtoken}`, err.toString());
+            logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
           });
       });
     }
   } catch (error) {
-    logger.error('initializeNotification failed', error);
+    logger.error(`initializeNotification failed ${error.toString()}`);
   }
 };
 
@@ -225,7 +228,9 @@ const sendManualhNotification = async () => {
       logger.info(`${currentDate.toString()} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
 
       for (let i = 0; i !== userNotificationInfo.length; i++) {
-        logger.info('sending manual notificaion...', userNotificationInfo[i].fcmtoken);
+
+        logger.info(`sending manual notificaion to ${userNotificationInfo[i].fcmtoken}`);
+
         admin
           .messaging()
           .send({
@@ -244,9 +249,9 @@ const sendManualhNotification = async () => {
             },
           })
           .then((msg) => {
-            logger.info('message sent', {fcm: userNotificationInfo[i].fcmtoken, msg});
+            logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
           }).catch((err) => {
-            logger.error(`failed to send message to fcmToken ${userNotificationInfo[i].fcmtoken}`, err.toString());
+            logger.error(`failed to send message to fcmToken ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
           }) 
       }
     } else {
@@ -254,7 +259,7 @@ const sendManualhNotification = async () => {
     }
 
   } catch (error) {
-    logger.error('sendManualhNotification failed', error);
+    logger.error(`sendManualhNotification failed: ${error.toString()}`);
   }
 };
 
