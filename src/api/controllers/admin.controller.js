@@ -3,7 +3,11 @@ const Category = require('../models/category.model');
 const Meditation = require('../models/meditation.model');
 const Course = require('../models/course.model');
 const Instructor = require('../models/instructor.model');
-// const Notification = require('../models/notification.model');
+const User = require('../models/user.model');
+const FcmToken = require('../models/fcmToken.model');
+const logger = require('../../config/logger');
+var admin = require('firebase-admin');
+
 exports.initSchema = async (req, res, next) => {
   try {
     const createdModels = {};
@@ -93,6 +97,59 @@ exports.initSchema = async (req, res, next) => {
     res.status(httpStatus.CREATED);
     res.json(createdModels);
   } catch (error) {
+    next(error);
+  }
+};
+
+exports.sendTestNotification = async (req, res, next) => {
+  try {
+    const {id} = req.body;
+
+    const user = await User.findOne({_id: id});
+
+    if (user) {
+
+      const fcmTokens = await FcmToken.find({userId: user._id});
+
+      logger.info(`found ${fcmTokens.length} fcmTokens for user ${id}`);
+
+      for (let i = 0; i !== fcmTokens.length; i++) {
+
+        logger.info(`sending test push notification fcmToken ${fcmTokens[i].fcm}...`);
+
+        admin
+        .messaging()
+        .send({
+          token: fcmTokens[i].fcm,
+          notification: {body: 'test notification', title: 'test notification'},
+          android: {
+            notification: {
+              body: 'test notification',
+              title: 'test notifiation',
+              color: '#fff566',
+              priority: 'high',
+              sound: 'default',
+              vibrateTimingsMillis: [200, 500, 800],
+              // imageUrl: notificationData.imageUrl,
+            },
+          },
+        })
+        .then((msg) => {
+          logger.info('message sent', {fcm: fcmTokens[i].fcm, msg});
+        }).catch((err) => {
+          logger.error(`failed to send message: ${err.toString()}`);
+        });
+        
+      }
+
+    } else {
+      logger.info(`did not find user by id, ignoring sendTestNotification request`);
+    }
+    
+    res.json();
+
+  } catch (error) {
+    logger.error(`saveNotification failed: ${error.toString()}`);
     next(error);
   }
 };

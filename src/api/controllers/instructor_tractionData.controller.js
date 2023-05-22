@@ -19,7 +19,7 @@ exports.saveInstructor_tractionData = async (req, res, next) => {
     // console.log('XXX', instructor);
     return res.send(200);
   } catch (error) {
-    logger.error('saveInstructor_tractionData failed', error);
+    logger.error(`saveInstructor_tractionData failed: ${error.toString()}`);
     next(error);
   }
 };
