@@ -279,3 +279,13 @@ exports.saveNotification = async (req, res, next) => {
     logger.error('saveNotification failed', error);
   }
 };
+
+exports.cancelNotification = async (req, res, next) => {
+  try {
+    const {user} = req.locals;
+
+    await User.findOneAndUpdate({_id: user._id}, {isNotification: false});
+  } catch (error) {
+    logger.error('cancelNotification failed', error);
+  }
+};
