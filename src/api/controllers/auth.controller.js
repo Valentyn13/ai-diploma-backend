@@ -26,6 +26,25 @@ function generateTokenResponse(user, accessToken) {
   };
 }
 
+async function updateFcm(fcmToken, userId) {
+  
+  try {
+    const findFcm = await FcmToken.find({fcm: fcmToken, userId: userId});
+  
+    if (!findFcm || findFcm.length < 1) {
+      logger.info(`adding new fcm for user ${userId}: ${fcmToken}`)
+      const newfcmToken = new FcmToken({
+        userId: userId,
+        fcm: fcmToken,
+      });
+      await newfcmToken.save();
+    } else {
+      logger.info(`found existing fcm for user ${userId}: ${fcmToken}`)
+    }  
+  } catch (e) {
+    logger.error(`failed to update fcm for user ${userId}: ${error.toString()}`)
+  }
+}
 /**
  * Returns jwt token if registration was successful
  * @public
@@ -47,21 +66,17 @@ exports.register = async (req, res, next) => {
     };
     const user = await new User(userData).save();
     const userTransformed = user.transform();
+
     const token = generateTokenResponse(user, user.token());
-    const findFcm = await FcmToken.find({fcm: fcmToken});
-    // logger.info('findFcm', findFcm);
-    if (!findFcm || findFcm.length < 1) {
-      const newfcmToken = new FcmToken({
-        userId: user._id,
-        fcm: fcmToken,
-      });
-      const saveFcm = await newfcmToken.save();
-    }
+
+    await updateFcm(fcmToken, user._id);
 
     const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
     await axios.post(url, userTransformed);
+    
     res.status(httpStatus.CREATED);
     return res.json({token, user: userTransformed});
+
   } catch (error) {
     return next(User.checkDuplicateEmail(error));
   }
@@ -77,18 +92,14 @@ exports.login = async (req, res, next) => {
     logger.info(`login with fcmToken ${fcmToken}`);
 
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
+    
     const token = generateTokenResponse(user, accessToken);
-    // TODO: query also by user id, fcmToken may be related to another user that logged in to the same device !
-    const findFcm = await FcmToken.find({fcm: fcmToken});
-    if (!findFcm || findFcm.length < 1) {
-      const newfcmToken = new FcmToken({
-        userId: user._id,
-        fcm: fcmToken,
-      });
-      const saveFcm = await newfcmToken.save();
-    }
+
+    await updateFcm(fcmToken, user._id);
+
     const userTransformed = user.transform();
     return res.json({token, user: userTransformed});
+
   } catch (error) {
     return next(error);
   }
@@ -103,20 +114,15 @@ exports.oAuth = async (req, res, next) => {
   try {
     const {user} = req;
     const {fcmToken} = req.body;
-    const findFcm = await FcmToken.find({fcm: fcmToken});
-    if (!findFcm || findFcm.length < 1) {
-      const newfcmToken = new FcmToken({
-        userId: user._id,
-        fcm: fcmToken,
-      });
-      await newfcmToken.save();
-    }
+
+    await updateFcm(fcmToken, user._id);
+
     const accessToken = user.token();
     const token = generateTokenResponse(user, accessToken);
 
     const userTransformed = user.transform();
-
     return res.json({token, user: userTransformed});
+
   } catch (error) {
     return next(error);
   }
