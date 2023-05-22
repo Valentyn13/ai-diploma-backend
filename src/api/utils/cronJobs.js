@@ -96,7 +96,7 @@ const sendPushNotificationAfterOneDay = async () => {
         .then((msg) => {
           logger.info(`message sent to ${notificationInfo[i].fcm}`);
         }).catch((err) => {
-          logger.error(`failed to send message to fcm ${notificationInfo[i].fcm}: ${err.toString()}`);
+          logger.error(`failed to send message to ${notificationInfo[i].fcm}: ${err.toString()}`);
         });
     }
   } catch (error) {
@@ -251,7 +251,7 @@ const sendManualhNotification = async () => {
           .then(() => {
             logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
           }).catch((err) => {
-            logger.error(`failed to send message to fcmToken ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
+            logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
           }) 
       }
     } else {
