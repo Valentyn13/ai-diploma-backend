@@ -113,34 +113,30 @@ exports.sendTestNotification = async (req, res, next) => {
 
       logger.info(`found ${fcmTokens.length} fcmTokens for user ${id}`);
 
-      for (let i = 0; i !== fcmTokens.length; i++) {
-
-        logger.info(`sending test push notification fcmToken ${fcmTokens[i].fcm}...`);
-
-        admin
-        .messaging()
-        .send({
-          token: fcmTokens[i].fcm,
-          notification: {body: 'test notification', title: 'test notification'},
-          android: {
-            notification: {
-              body: 'test notification',
-              title: 'test notifiation',
-              color: '#fff566',
-              priority: 'high',
-              sound: 'default',
-              vibrateTimingsMillis: [200, 500, 800],
-              // imageUrl: notificationData.imageUrl,
-            },
+      const messages = fcmTokens.map((fcmToken) => ({
+        token: fcmToken.fcm,
+        notification: {body: 'test notification', title: 'test notification'},
+        android: {
+          notification: {
+            body: 'test notification',
+            title: 'test notifiation',
+            color: '#fff566',
+            priority: 'high',
+            sound: 'default',
+            vibrateTimingsMillis: [200, 500, 800],
+            // imageUrl: notificationData.imageUrl,
           },
-        })
-        .then((msg) => {
-          logger.info(`message sent to ${fcmTokens[i].fcm}`);
-        }).catch((err) => {
-          logger.error(`failed to send message to ${fcmTokens[i].fcm}: ${err.toString()}`);
-        });
-        
-      }
+        },
+      }));
+
+      admin
+      .messaging()
+      .sendAll(messages)
+      .then((sendRes) => {
+        logger.info(`sendAll response for fcmToken ${JSON.stringify(fcmTokens.map(({fcm}) => fcm))}: ${JSON.stringify(sendRes)}`);
+      }).catch((err) => {
+        logger.info(`sendAll failed with err: ${err.toString()}`);
+      });
 
     } else {
       logger.info(`did not find user by id, ignoring sendTestNotification request`);
