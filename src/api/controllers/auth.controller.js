@@ -109,7 +109,7 @@ exports.oAuth = async (req, res, next) => {
         userId: user._id,
         fcm: fcmToken,
       });
-      const saveFcm = await newfcmToken.save();
+      await newfcmToken.save();
     }
     const accessToken = user.token();
     const token = generateTokenResponse(user, accessToken);
