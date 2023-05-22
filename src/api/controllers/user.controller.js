@@ -271,7 +271,7 @@ exports.saveNotification = async (req, res, next) => {
           .then((msg) => {
             logger.info(`message sent to ${fcmTokens[i].fcm}`);
           }).catch((err) => {
-            logger.error(`failed to send message: ${err.toString()}`);
+            logger.error(`failed to send message to ${fcmTokens[i].fcm}: ${err.toString()}`);
           });
       }
     });
