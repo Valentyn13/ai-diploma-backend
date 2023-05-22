@@ -155,7 +155,7 @@ exports.deleteUserData = async (req, res, next) => {
       message: 'No account found with that email',
     });
   } catch (error) {
-    logger.error('deleteUserData failed', error);
+    logger.error(`deleteUserData failed ${error.toString()}`);
     return next(error);
   }
 };
@@ -204,7 +204,7 @@ exports.changePassword = async (req, res, next) => {
       message: 'try later',
     });
   } catch (error) {
-    logger.error('changePassword failed', error);
+    logger.error(`changePassword failed: ${error.toString()}`);
     return next(error);
   }
 };
@@ -220,7 +220,7 @@ exports.sendCancelSubscriptionEmail = async (req, res, next) => {
   } catch (error) {
     // console.log('<<<<<<<error>>>>>>>', error);
     // res.status(httpStatus.BAD_GATEWAY);
-    logger.error('failed to send sendCancelSubscriptionEmail', error);
+    logger.error(`failed to send sendCancelSubscriptionEmail: ${error.toString()}`);
     return next(error);
   }
 };
@@ -269,14 +269,14 @@ exports.saveNotification = async (req, res, next) => {
             },
           })
           .then((msg) => {
-            logger.error('message sent', {fcm: fcmTokens[i].fcm, msg});
+            logger.info(`message sent to ${fcmTokens[i].fcm}`);
           }).catch((err) => {
-            logger.error('failed to send message', err);
+            logger.error(`failed to send message: ${err.toString()}`);
           });
       }
     });
   } catch (error) {
-    logger.error('saveNotification failed', error);
+    logger.error(`saveNotification failed: ${error.toString()}`);
   }
 };
 
@@ -286,6 +286,6 @@ exports.cancelNotification = async (req, res, next) => {
 
     await User.findOneAndUpdate({_id: user._id}, {isNotification: false});
   } catch (error) {
-    logger.error('cancelNotification failed', error);
+    logger.error(`cancelNotification failed: ${error.toString()}`);
   }
 };

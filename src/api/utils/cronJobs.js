@@ -248,7 +248,7 @@ const sendManualhNotification = async () => {
               },
             },
           })
-          .then((msg) => {
+          .then(() => {
             logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
           }).catch((err) => {
             logger.error(`failed to send message to fcmToken ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
