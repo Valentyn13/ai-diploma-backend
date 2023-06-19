@@ -31,6 +31,16 @@ const categorySchema = new mongoose.Schema(
     isCategoryLocked: {
       type: Boolean,
     },
+    showInHome: {
+      type: Boolean,
+    },
+    hideInMeditations: {
+      type: Boolean,
+    },
+    height: {
+      type: String,
+      enum: ['small', 'medium', 'large'],
+    },
   },
   {
     timestamps: true,
