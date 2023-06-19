@@ -35,6 +35,11 @@ const meditationSchema = new mongoose.Schema(
       maxlength: 256,
       trim: true,
     },
+    thumbnail: {
+      type: String,
+      maxlength: 256,
+      trim: true,
+    },
     count: {
       type: Number,
     },
