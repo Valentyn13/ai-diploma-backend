@@ -90,5 +90,6 @@
     "hooks": {
       "pre-commit": "yarn lint"
     }
-  }
+  },
+  "packageManager": "yarn@3.6.1"
 }
