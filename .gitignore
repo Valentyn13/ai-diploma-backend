@@ -56,3 +56,6 @@ db-*
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# ec2 pem file
+RegaDev.pem
