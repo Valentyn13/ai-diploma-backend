@@ -1,0 +1,2 @@
+ssh -i "RegaDev.pem" ec2-user@ec2-54-93-114-151.eu-central-1.compute.amazonaws.com
+
