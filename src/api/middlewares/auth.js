@@ -53,6 +53,34 @@ exports.authorize = (roles = User.roles) => (req, res, next) =>
 
 exports.oAuth = (service) => passport.authenticate(service, {session: false});
 
+exports.googleAuthenticate = async (req, res, next) => {
+  try {
+    const {sex, categories, email, sub, name} = req.body;
+
+    const userData = {
+      service: 'google',
+      email,
+      id: sub,
+      name,
+      sex,
+      categories,
+    };
+
+    const user = await User.oAuthLogin(userData);
+    const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
+    await axios.post(url, user);
+    req.user = user;
+    next();
+  } catch (error) {
+    const apiError = new APIError({
+      message: error ? error.message : 'some thing went wrong',
+      status: httpStatus[500],
+      stack: error ? error.stack : undefined,
+    });
+    return next(apiError);
+  }
+};
+
 exports.fbAuthenticate = async (req, res, next) => {
   try {
     const {access_token} = req.body;
@@ -61,6 +89,7 @@ exports.fbAuthenticate = async (req, res, next) => {
       method: 'get',
       url: `https://graph.facebook.com/v15.0/me?fields=email%2Cid%2Cfirst_name%2Clast_name&access_token=${access_token}`,
     };
+
     const response = await axios(config);
     if (response) {
       const finduser = await User.findOne({email: response.data.email});
