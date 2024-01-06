@@ -10,20 +10,20 @@ const logger = require('../../../config/logger');
 // such as an email service API or nodemailer-sendgrid-transport
 
 const transporter = nodemailer.createTransport({
-  port: emailConfig.port,
-  host: emailConfig.host,
+  port: 465,
+  host: 'smtp.gmail.com',
   auth: {
-    user: emailConfig.username,
-    pass: emailConfig.password,
+    user: 'hello@rega.co.il',
+    pass: 'cbaxzxwmhrszvqvc',
   },
-  secure: false, // upgrades later with STARTTLS -- change this based on the PORT
+  secure: true,
 });
 
 exports.sendPasswordReset = async (passwordResetObject) => {
   const email = new Email({
     views: {root: __dirname},
     message: {
-      from: 'support@your-app.com',
+      from: `צוות רגע <${emailConfig.from}>`,
     },
     // uncomment below to send emails in development/test env:
     send: true,
@@ -37,22 +37,20 @@ exports.sendPasswordReset = async (passwordResetObject) => {
         to: passwordResetObject.userEmail,
       },
       locals: {
-        productName: 'Test App',
-        // passwordResetUrl should be a URL to your app that displays a view where they
-        // can enter a new password along with passing the resetToken in the params
-        passwordResetUrl: `https://your-app/new-password/view?resetToken=${passwordResetObject.resetToken}`,
+        productName: 'רגע',
+        name: passwordResetObject.name,
+        verificationCode: passwordResetObject.resetToken.substr(passwordResetObject.resetToken.length - 4),
       },
     })
-    .catch(() => logger.error('error sending password reset email'));
+    .catch((e) => logger.error('error sending password reset email', e));
 };
 
 exports.sendPasswordChangeEmail = async (user) => {
   const email = new Email({
     views: {root: __dirname},
     message: {
-      from: 'support@your-app.com',
+      from: `צוות רגע <${emailConfig.from}>`,
     },
-    // uncomment below to send emails in development/test env:
     send: true,
     transport: transporter,
   });
@@ -64,7 +62,7 @@ exports.sendPasswordChangeEmail = async (user) => {
         to: user.email,
       },
       locals: {
-        productName: 'Test App',
+        productName: 'רגע',
         name: user.name,
       },
     })

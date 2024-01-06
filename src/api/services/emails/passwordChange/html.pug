@@ -12,6 +12,7 @@ head
     height: 100%;
     margin: 0;
     -webkit-text-size-adjust: none;
+    direction: rtl;
     }
     a {
     color: #3869D4;
@@ -37,6 +38,7 @@ head
     body,
     td,
     th {
+    direction: rtl;
     font-family: "Nunito Sans", Helvetica, Arial, sans-serif;
     }
     h1 {
@@ -44,25 +46,29 @@ head
     color: #333333;
     font-size: 22px;
     font-weight: bold;
-    text-align: left;
+    text-align: right;
+    direction: rtl;
     }
     h2 {
     margin-top: 0;
     color: #333333;
     font-size: 16px;
     font-weight: bold;
-    text-align: left;
+    text-align: right;
+    direction: rtl;
     }
     h3 {
     margin-top: 0;
     color: #333333;
     font-size: 14px;
     font-weight: bold;
-    text-align: left;
+    text-align: right;
+    direction: rtl;
     }
     td,
     th {
     font-size: 16px;
+    direction: rtl;
     }
     p,
     ul,
@@ -71,6 +77,7 @@ head
     margin: .4em 0 1.1875em;
     font-size: 16px;
     line-height: 1.625;
+    direction: rtl;
     }
     p.sub {
     font-size: 13px;
@@ -80,7 +87,7 @@ head
     text-align: right;
     }
     .align-left {
-    text-align: left;
+    text-align: right;
     }
     .align-center {
     text-align: center;
@@ -368,7 +375,7 @@ head
     color: #333;
     }
 span.preheader(style='display: none !important; visibility: hidden; mso-hide: all; font-size: 1px; line-height: 1px; max-height: 0; max-width: 0; opacity: 0; overflow: hidden;')
-  | Hello #{name},
+  | היי #{name},
 table.email-wrapper(width='100%' cellpadding='0' cellspacing='0' role='presentation' style='width: 100%; -premailer-width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; margin: 0; padding: 0;')
   tr
     td(align='center' style='word-break: break-word; font-family: "Nunito Sans", Helvetica, Arial, sans-serif; font-size: 16px;')
@@ -385,9 +392,9 @@ table.email-wrapper(width='100%' cellpadding='0' cellspacing='0' role='presentat
               tr
                 td.content-cell(style='word-break: break-word; font-family: "Nunito Sans", Helvetica, Arial, sans-serif; font-size: 16px; padding: 35px;')
                   .f-fallback
-                    h1(style='margin-top: 0; color: #333333; font-size: 22px; font-weight: bold; text-align: left;' align='left') Hello,
+                    h1(style='margin-top: 0; color: #333333; font-size: 22px; font-weight: bold; text-align: right;' align='left') Hello,
                     p(style='font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;')
-                      | Your password for #{productName} has been changed successfully.  You can now login with your new password
+                      | הסיסמה שלך עבור #{productName} שונתה בהצלחה. כעת תוכל להיכנס עם הסיסמה החדשה שלך.
                     // Action
                     table.body-action(align='center' width='100%' cellpadding='0' cellspacing='0' role='presentation' style='width: 100%; -premailer-width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; text-align: center; margin: 30px auto; padding: 0;')
                       tr
@@ -404,4 +411,4 @@ table.email-wrapper(width='100%' cellpadding='0' cellspacing='0' role='presentat
             table.email-footer(align='center' width='570' cellpadding='0' cellspacing='0' role='presentation' style='width: 570px; -premailer-width: 570px; -premailer-cellpadding: 0; -premailer-cellspacing: 0; text-align: center; margin: 0 auto; padding: 0;')
               tr
                 td.content-cell(align='center' style='word-break: break-word; font-family: "Nunito Sans", Helvetica, Arial, sans-serif; font-size: 16px; padding: 35px;')
-                  p.f-fallback.sub.align-center(style='font-size: 13px; line-height: 1.625; text-align: center; color: #A8AAAF; margin: .4em 0 1.1875em;' align='center') &copy; 2019 #{productName}. All rights reserved.
+                  p.f-fallback.sub.align-center(style='font-size: 13px; line-height: 1.625; text-align: center; color: #A8AAAF; margin: .4em 0 1.1875em;' align='center') &copy; 2024 #{productName}. כל הזכויות שמורות.

@@ -171,8 +171,8 @@ exports.resetPassword = async (req, res, next) => {
   try {
     const {email, password, resetToken} = req.body;
     const resetTokenObject = await PasswordResetToken.findOneAndRemove({
-      userEmail: email,
-      resetToken,
+      userEmail: email.toLowerCase(),
+      resetToken: {$regex: `${resetToken}$`},
     });
 
     const err = {
