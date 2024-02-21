@@ -55,6 +55,11 @@ exports.sendPasswordChangeEmail = async (user) => {
     transport: transporter,
   });
 
+  // spamming of google@gmail.com email
+  if (!user.email || user.email === 'google@gmail.com') {
+    return;
+  }
+
   email
     .send({
       template: 'passwordChange',
@@ -132,15 +137,13 @@ exports.cancelSubscription = async (user, reason) => {
     const port = process.env.EMAIL_PORT;
     const sender = process.env.EMAIL_USERNAME;
     const transport = nodemailer.createTransport({
+      port: 465,
       host: 'smtp.gmail.com',
-      port,
-      secure: true,
       auth: {
-        type: 'OAuth2',
-        user: sender,
-        serviceClient,
-        privateKey,
+        user: 'hello@rega.co.il',
+        pass: 'cbaxzxwmhrszvqvc',
       },
+      secure: true,
     });
 
     // verify connection configuration
@@ -149,13 +152,12 @@ exports.cancelSubscription = async (user, reason) => {
         logger.error('error with email connection', error);
       }
     });
-    const temp = emailTemplate.cancelSubscitionTemplate(user.name, user._id, user.email, reason);
+    const temp = emailTemplate.cancelSubscriptionTemplate(user.name, user._id, user.email, reason);
 
     const info = await transport.sendMail({
       from: sender,
-      // to: 'tom@rega.co.il',
-      to: 'tom@rega.co.il',
-      subject: 'User from Regaapp request',
+      to: 'hello@rega.co.il',
+      subject: 'User Cancel Subscription',
       html: temp,
     });
 
