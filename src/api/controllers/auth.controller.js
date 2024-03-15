@@ -27,22 +27,21 @@ function generateTokenResponse(user, accessToken) {
 }
 
 async function updateFcm(fcmToken, userId) {
-  
   try {
     const findFcm = await FcmToken.find({fcm: fcmToken, userId: userId});
-  
+
     if (!findFcm || findFcm.length < 1) {
-      logger.info(`adding new fcm for user ${userId}: ${fcmToken}`)
+      logger.info(`adding new fcm for user ${userId}: ${fcmToken}`);
       const newfcmToken = new FcmToken({
         userId: userId,
         fcm: fcmToken,
       });
       await newfcmToken.save();
     } else {
-      logger.info(`found existing fcm for user ${userId}: ${fcmToken}`)
-    }  
+      logger.info(`found existing fcm for user ${userId}: ${fcmToken}`);
+    }
   } catch (e) {
-    logger.error(`failed to update fcm for user ${userId}: ${error.toString()}`)
+    logger.error(`failed to update fcm for user ${userId}: ${error.toString()}`);
   }
 }
 /**
@@ -73,10 +72,9 @@ exports.register = async (req, res, next) => {
 
     const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
     await axios.post(url, userTransformed);
-    
+
     res.status(httpStatus.CREATED);
     return res.json({token, user: userTransformed});
-
   } catch (error) {
     return next(User.checkDuplicateEmail(error));
   }
@@ -92,14 +90,13 @@ exports.login = async (req, res, next) => {
     logger.info(`login with fcmToken ${fcmToken}`);
 
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
-    
+
     const token = generateTokenResponse(user, accessToken);
 
     await updateFcm(fcmToken, user._id);
 
     const userTransformed = user.transform();
     return res.json({token, user: userTransformed});
-
   } catch (error) {
     return next(error);
   }
@@ -122,7 +119,6 @@ exports.oAuth = async (req, res, next) => {
 
     const userTransformed = user.transform();
     return res.json({token, user: userTransformed});
-
   } catch (error) {
     return next(error);
   }
@@ -152,7 +148,7 @@ exports.sendPasswordReset = async (req, res, next) => {
     const {email} = req.body;
     const user = await User.findOne({email}).exec();
 
-    if (user) {
+    if (user && email !== 'google@gmail.com') {
       const passwordResetObj = await PasswordResetToken.generate(user);
       emailProvider.sendPasswordReset(passwordResetObj);
       res.status(httpStatus.OK);

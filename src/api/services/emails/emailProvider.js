@@ -55,8 +55,7 @@ exports.sendPasswordChangeEmail = async (user) => {
     transport: transporter,
   });
 
-  // spamming of google@gmail.com email
-  if (!user.email || user.email === 'google@gmail.com') {
+  if (!user.email) {
     return;
   }
 
