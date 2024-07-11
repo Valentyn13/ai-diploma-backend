@@ -243,37 +243,40 @@ exports.saveNotification = async (req, res, next) => {
     const jobSchedule = `0 ${mints} ${hour} * * *`;
 
     logger.info(`schedueling job for user ${user._id} at ${jobSchedule}`);
-    
+
     // schedule cron job for specific user
     cron.scheduleJob(userId, jobSchedule, async () => {
-      const notificationData = await Notification.findOne({type: 'custom'});
-      const fcmTokens = await FcmToken.find({userId: user._id});
-      // console.log('fcmTokens', fcmTokens);
-      for (let i = 0; i !== fcmTokens.length; i++) {
-        //   console.log('<<<<notificationInfo>>>>>', notificationInfo[i].fcm);
-        admin
-          .messaging()
-          .send({
-            token: fcmTokens[i].fcm,
-            notification: {body: notificationData.body, title: notificationData.title},
-            android: {
-              notification: {
-                body: notificationData.body,
-                title: notificationData.title,
-                color: '#fff566',
-                priority: 'high',
-                sound: 'default',
-                vibrateTimingsMillis: [200, 500, 800],
-                imageUrl: notificationData.imageUrl,
+      const {body, title, imageUrl} = await Notification.findOne({type: 'custom'});
+      const fetchedTokens = await FcmToken.find({userId: user._id});
+      const fcms = fetchedTokens.map(({fcm}) => fcm).filter((fcm) => typeof fcm === 'string');
+
+      await Promise.all[
+        fcms.map((token) =>
+          admin
+            .messaging()
+            .send({
+              token,
+              notification: {body, title},
+              android: {
+                notification: {
+                  body,
+                  title,
+                  color: '#fff566',
+                  priority: 'high',
+                  sound: 'default',
+                  vibrateTimingsMillis: [200, 500, 800],
+                  imageUrl: imageUrl,
+                },
               },
-            },
-          })
-          .then((msg) => {
-            logger.info(`message sent to ${fcmTokens[i].fcm}`);
-          }).catch((err) => {
-            logger.error(`failed to send message to ${fcmTokens[i].fcm}: ${err.toString()}`);
-          });
-      }
+            })
+            .then((msg) => {
+              logger.info(`message sent to ${token}`);
+            })
+            .catch((err) => {
+              logger.error(`failed to send message to ${token}: ${err.toString()}`);
+            }),
+        )
+      ];
     });
   } catch (error) {
     logger.error(`saveNotification failed: ${error.toString()}`);
