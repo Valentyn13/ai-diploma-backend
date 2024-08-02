@@ -10,6 +10,14 @@ const emailProvider = require('../services/emails/emailProvider');
 const axios = require('axios');
 const logger = require('../../config/logger');
 
+async function addToMailChimp(email) {
+  try {
+    await axios.get(`https://rega.co.il/api/mailchimp?email=${email}`);
+  } catch (e) {
+    logger.error(`failed to add email to mailchimp: ${e.toString()}`);
+  }
+}
+
 /**
  * Returns a formated object with tokens
  * @private
@@ -72,6 +80,7 @@ exports.register = async (req, res, next) => {
 
     const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
     await axios.post(url, userTransformed);
+    await addToMailChimp(email);
 
     res.status(httpStatus.CREATED);
     return res.json({token, user: userTransformed});
@@ -110,7 +119,7 @@ exports.login = async (req, res, next) => {
 exports.oAuth = async (req, res, next) => {
   try {
     const {user} = req;
-    const {fcmToken} = req.body;
+    const {fcmToken, email} = req.body;
 
     await updateFcm(fcmToken, user._id);
 
@@ -118,6 +127,7 @@ exports.oAuth = async (req, res, next) => {
     const token = generateTokenResponse(user, accessToken);
 
     const userTransformed = user.transform();
+    await addToMailChimp(email);
     return res.json({token, user: userTransformed});
   } catch (error) {
     return next(error);
