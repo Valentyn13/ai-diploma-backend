@@ -1,3 +1,4 @@
+require('web-streams-polyfill');
 // make bluebird default Promise
 // Promise = require('bluebird'); // eslint-disable-line no-global-assign
 const {port, env} = require('./config/vars');
@@ -17,7 +18,7 @@ app.listen(port, () => {
     cron.schedule('0 */24 * * *', () => {
       cronfun.sendPushNotificationAfterOneDay();
     });
-    cronfun.initializeNotification();  
+    cronfun.initializeNotification();
   } else {
     logger.info('skipping crons in dev env (except manual)');
   }
