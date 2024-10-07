@@ -1,8 +1,10 @@
 const httpStatus = require('http-status');
 const passport = require('passport');
-const User = require('../models/user.model');
-const APIError = require('../utils/APIError');
 const axios = require('axios');
+const bluebird = require('bluebird');
+const User = require('../models/user.model');
+
+const APIError = require('../utils/APIError');
 const logger = require('../../config/logger');
 
 const ADMIN = 'admin';
@@ -11,7 +13,6 @@ const LOGGED_USER_NO_ID = '_loggedUserNoId';
 
 const handleJWT = (req, res, next, roles) => async (err, user, info) => {
   const error = err || info;
-  const logIn = Promise.promisify(req.logIn);
   const apiError = new APIError({
     message: error ? error.message : 'Unauthorized',
     status: httpStatus.UNAUTHORIZED,
@@ -19,6 +20,7 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
   });
 
   try {
+    const logIn = bluebird.promisify(req.logIn);
     if (error || !user) throw error;
     await logIn(user, {session: false});
   } catch (e) {
