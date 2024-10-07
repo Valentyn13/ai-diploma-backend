@@ -9,6 +9,7 @@ const instructorRoutes = require('./instructor.route');
 const revenuecatRoutes = require('./revenuecat.route');
 const instructor_tractionData = require('./instructor_tractionData.route.js');
 const articleRoutes = require('./article.route');
+const chatsRoutes = require('./chats.route');
 
 const router = express.Router();
 
@@ -32,5 +33,6 @@ router.use('/instructors', instructorRoutes);
 router.use('/revenuecat', revenuecatRoutes);
 router.use('/instructor_tractionData', instructor_tractionData);
 router.use('/articles', articleRoutes);
+router.use('/chats', chatsRoutes);
 
 module.exports = router;
