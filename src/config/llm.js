@@ -39,7 +39,8 @@ exports.generateMessageForHistory = (role, content) => {
 };
 const summaryTemplate = `
 Shortly summarize the lines of conversation provided,
-adding new important details to current summary.Write new summary after words "New summary:".
+adding new important details to current summary. If the summary is already has 4 or more sentences rewrite the 
+full summary, keep only important things in it. Write new summary after words "New summary:".
 Current summary:\n{summary}\n\n\nNew lines of conversation:\n{new_lines}\nNew summary:`;
 
 const summaryPrompt = new PromptTemplate({

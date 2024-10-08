@@ -50,16 +50,25 @@ exports.sendMessageToAi = async (req, res, next) => {
 
     const chat = await Chats.getChatById(sessionId);
 
-    const modelResponse = await AIModel.createApiCall(chat.messages, chat.summary.summary || "", input);
+    const isSummaryExist = !!chat.summary;
+
+    const historySummary = isSummaryExist ? chat.summary.summary : "";
+
+    const modelResponse = await AIModel.createApiCall(chat.messages, historySummary, input);
 
     const aiMessage = modelResponse.aiMessage
     const newSummary = modelResponse.summary
     
     const aiMessageForHistory = AIModel.generateMessageForHistory('assistant', aiMessage);
     const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
-    if (newSummary) {
+
+    if ( isSummaryExist ) {
       await  Summary.findByIdAndUpdate(chat.summary._id, {summary: newSummary});
+    } else {
+     const summaryForOldChat =  await Summary.create({summary: newSummary, sessionId});
+     await Chats.findByIdAndUpdate(sessionId, {summary: summaryForOldChat._id});
     }
+      
    
     await Chats.findByIdAndUpdate(
       sessionId,
