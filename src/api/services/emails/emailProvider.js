@@ -9,12 +9,17 @@ const logger = require('../../../config/logger');
 // if you dont want to use SMTP you can create your own transport here
 // such as an email service API or nodemailer-sendgrid-transport
 
+const EMAIL_HOST = process.env.EMAIL_HOST;
+const EMAIL_PORT = process.env.EMAIL_PORT;
+const EMAIL_SENDER = process.env.EMAIL_USERNAME;
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
+
 const transporter = nodemailer.createTransport({
-  port: 465,
-  host: 'smtp.gmail.com',
+  port: EMAIL_PORT,
+  host: EMAIL_HOST,
   auth: {
-    user: 'hello@rega.co.il',
-    pass: 'cbaxzxwmhrszvqvc',
+    user: EMAIL_SENDER,
+    pass: EMAIL_PASSWORD,
   },
   secure: true,
 });
