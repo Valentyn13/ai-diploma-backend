@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const Meditation = require('../models/meditation.model');
 var admin = require('firebase-admin');
 const cron = require('node-schedule');
 var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
@@ -263,8 +264,30 @@ const sendManualhNotification = async () => {
   }
 };
 
+const calculateMeditationChallenge = async () => {
+  console.log('Calculating meditation challenge');
+  try {
+    await Meditation.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: { $multiply: ['$count', '$duration'] },
+          },
+        },
+      },
+      {
+        $out: 'meditationchallenges',
+      }
+    ])
+  } catch (error) {
+    console.log('Error calculating meditation challenge', error);
+  }
+}
+
 module.exports = {
   sendPushNotificationAfterOneDay,
   initializeNotification,
   sendManualhNotification,
+  calculateMeditationChallenge
 };

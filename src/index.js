@@ -19,6 +19,9 @@ app.listen(port, () => {
   } else {
     logger.info('skipping crons in dev env (except manual)');
   }
+  cron.schedule('0 * * * *',() => {
+    cronfun.calculateMeditationChallenge()
+  })
   cron.schedule('*/10 * * * *', () => {
     cronfun.sendManualhNotification();
   });
