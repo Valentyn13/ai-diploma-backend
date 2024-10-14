@@ -1,5 +1,4 @@
 const User = require('../models/user.model');
-const Meditation = require('../models/meditation.model');
 var admin = require('firebase-admin');
 const cron = require('node-schedule');
 var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
@@ -267,13 +266,13 @@ const sendManualhNotification = async () => {
 const calculateMeditationChallenge = async () => {
   console.log('Calculating meditation challenge');
   try {
-    await Meditation.aggregate([
+    await User.aggregate([
       {
         $group: {
           _id: null,
-          total: {
-            $sum: { $multiply: ['$count', '$duration'] },
-          },
+          total: { $sum: {
+            $ifNull: ['$userProgress.minutesPracticed', 0]
+          } },
         },
       },
       {
