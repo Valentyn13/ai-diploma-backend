@@ -1,6 +1,7 @@
 const Chats = require('../models/chats.model');
 const AIModel = require('../../config/llm');
 const Summary = require('../models/chatSummary.model')
+const User = require('../models/user.model')
 
 exports.loadById = async (req, res, next) => {
   try {
@@ -50,11 +51,18 @@ exports.sendMessageToAi = async (req, res, next) => {
 
     const chat = await Chats.getChatById(sessionId);
 
+    const user = await User.get(chat.userId);
+
+    const userData = {
+      name: user.name,
+      gender: user.sex,
+    }
+
     const isSummaryExist = !!chat.summary;
 
     const historySummary = isSummaryExist ? chat.summary.summary : "";
 
-    const modelResponse = await AIModel.createApiCall(chat.messages, historySummary, input);
+    const modelResponse = await AIModel.createApiCall(userData, historySummary, input);
 
     const aiMessage = modelResponse.aiMessage
     const newSummary = modelResponse.summary

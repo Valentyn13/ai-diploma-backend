@@ -55,7 +55,14 @@ chatSchema.statics = {
     const objectId = new mongoose.Types.ObjectId();
     const stringIdRepresentation = objectId.toString();
 
-    const modelResponse = await AIModel.createApiCall([], '', input);
+    const user = await User.get(userId);
+
+    const userData = {
+      name: user.name,
+      gender: user.sex
+    }
+
+    const modelResponse = await AIModel.createApiCall(userData, '', input);
 
     const aiMessage = modelResponse.aiMessage;
     const summary = modelResponse.summary;
