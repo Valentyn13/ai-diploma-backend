@@ -1,6 +1,5 @@
 const Chats = require('../models/chats.model');
 const AIModel = require('../../config/llm');
-const Summary = require('../models/chatSummary.model')
 const User = require('../models/user.model')
 
 exports.loadById = async (req, res, next) => {
@@ -58,25 +57,21 @@ exports.sendMessageToAi = async (req, res, next) => {
       gender: user.sex,
     }
 
-    const isSummaryExist = !!chat.summary;
+   const isLastCachedIndexExist  = !!chat.lastCachedMessageIndex
+   let lastCachedMessageIndex = isLastCachedIndexExist ? chat.lastCachedMessageIndex : 0;
 
-    const historySummary = isSummaryExist ? chat.summary.summary : "";
+   const isStartCacheMessageIndex = !!chat.startCacheMessageIndex
+   let startCacheMessageIndex = isStartCacheMessageIndex ? chat.startCacheMessageIndex : 0;
 
-    const modelResponse = await AIModel.createApiCall(userData, historySummary, input);
+
+    const modelResponse = await AIModel.createApiCall(userData, chat.messages, lastCachedMessageIndex, startCacheMessageIndex, input);
 
     const aiMessage = modelResponse.aiMessage
-    const newSummary = modelResponse.summary
-    
+    const newLastCachedIndex = modelResponse.newLastCachedIndex
+    const newStartCacheIndex = modelResponse.newStartCacheIndex
+
     const aiMessageForHistory = AIModel.generateMessageForHistory('assistant', aiMessage);
     const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
-
-    if ( isSummaryExist ) {
-      await  Summary.findByIdAndUpdate(chat.summary._id, {summary: newSummary});
-    } else {
-     const summaryForOldChat =  await Summary.create({summary: newSummary, sessionId});
-     await Chats.findByIdAndUpdate(sessionId, {summary: summaryForOldChat._id});
-    }
-      
    
     await Chats.findByIdAndUpdate(
       sessionId,
@@ -86,6 +81,8 @@ exports.sendMessageToAi = async (req, res, next) => {
             $each: [userMessageForHistory, aiMessageForHistory],
           },
         },
+        startCacheMessageIndex : newStartCacheIndex,
+        lastCachedMessageIndex: newLastCachedIndex
       },
     );
 

@@ -39,6 +39,14 @@ const chatSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Summary',
     },
+    lastCachedMessageIndex: {
+      type: Number,
+      default: 0,
+    },
+    startCacheMessageIndex: {
+      type: Number,
+      default: 0,
+    },
     messages: {
       type: [messageSchema],
     },
@@ -62,22 +70,18 @@ chatSchema.statics = {
       gender: user.sex
     }
 
-    const modelResponse = await AIModel.createApiCall(userData, '', input);
+    const modelResponse = await AIModel.createApiCall(userData, [], 0, 0, input);
 
     const aiMessage = modelResponse.aiMessage;
-    const summary = modelResponse.summary;
 
     const aiMessageForHistory = AIModel.generateMessageForHistory('assistant', aiMessage);
     const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
-
-    const newSummary = await Summary.create({summary, sessionId: objectId});
 
     const chat = await this.create({
       _id: objectId,
       sessionId: stringIdRepresentation,
       messages: [userMessageForHistory, aiMessageForHistory],
       userId,
-      summary: newSummary._id,
     });
     return chat;
   },
