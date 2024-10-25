@@ -86,7 +86,7 @@ exports.deleteUserData = async (user) => {
     const port = process.env.EMAIL_PORT;
     const sender = process.env.EMAIL_USERNAME;
     const transport = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: EMAIL_HOST,
       port,
       secure: true,
       auth: {
@@ -140,15 +140,7 @@ exports.cancelSubscription = async (user, reason) => {
     privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
     const port = process.env.EMAIL_PORT;
     const sender = process.env.EMAIL_USERNAME;
-    const transport = nodemailer.createTransport({
-      port: 465,
-      host: 'smtp.gmail.com',
-      auth: {
-        user: 'hello@rega.co.il',
-        pass: 'cbaxzxwmhrszvqvc',
-      },
-      secure: true,
-    });
+    const transport = transporter
 
     // verify connection configuration
     transport.verify((error) => {
