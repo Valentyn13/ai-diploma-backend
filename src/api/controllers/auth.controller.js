@@ -11,10 +11,26 @@ const axios = require('axios');
 const logger = require('../../config/logger');
 
 async function addToMailChimp(email) {
+  if (process.env.NODE_ENV !== 'production' || !email) {
+    return;
+  }
+
   try {
-    await axios.get(`https://rega.co.il/api/mailchimp?email=${email}`);
+    await axios.post(
+      `https://us18.api.mailchimp.com/3.0/lists/${process.env.MAILCHIMP_LIST_ID}/members`,
+      {
+        email_address: email,
+        status: "subscribed",
+      },
+      {
+        headers: {
+          Authorization: `apikey ${process.env.MAILCHIMP_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (e) {
-    logger.error(`failed to add email to mailchimp: ${e.toString()}`);
+    logger.error(`Failed to add email to Mailchimp: ${e.toString()}`);
   }
 }
 
