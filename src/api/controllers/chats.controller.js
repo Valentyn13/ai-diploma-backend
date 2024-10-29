@@ -1,13 +1,15 @@
+const mongoose = require('mongoose');
+
 const Chats = require('../models/chats.model');
 const AIModel = require('../../config/llm');
-const User = require('../models/user.model')
+const User = require('../models/user.model');
 
 exports.loadById = async (req, res, next) => {
   try {
     const chat = await Chats.getChatById(req.params.sessionId);
     res.status(200).json(chat);
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
@@ -17,9 +19,8 @@ exports.delete = async (req, res, next) => {
     await Chats.deleteChat(id);
     res.status(200).json({deleted: true});
   } catch (error) {
-    next(error)
+    next(error);
   }
-
 };
 
 exports.loadAll = async (req, res, next) => {
@@ -38,7 +39,30 @@ exports.create = async (req, res, next) => {
     const chat = await Chats.createChat(input, userId);
     res.status(200).json(chat);
   } catch (error) {
-    console.log(error)
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.createStreamingChat = async (req, res, next) => {
+  const input = req.body.input;
+  const userId = req.query.userId;
+
+  const objectId = new mongoose.Types.ObjectId();
+  const stringIdRepresentation = objectId.toString();
+
+  try {
+    const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
+
+    const chat = await Chats.create({
+      _id: objectId,
+      sessionId: stringIdRepresentation,
+      messages: [userMessageForHistory],
+      userId,
+    });
+    res.status(200).json(chat);
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -46,8 +70,8 @@ exports.create = async (req, res, next) => {
 exports.sendMessageToAi = async (req, res, next) => {
   const sessionId = req.params.sessionId;
   const input = req.body.input;
-  try {
 
+  try {
     const chat = await Chats.getChatById(sessionId);
 
     const user = await User.get(chat.userId);
@@ -55,39 +79,117 @@ exports.sendMessageToAi = async (req, res, next) => {
     const userData = {
       name: user.name,
       gender: user.sex,
-    }
+    };
 
-   const isLastCachedIndexExist  = !!chat.lastCachedMessageIndex
-   let lastCachedMessageIndex = isLastCachedIndexExist ? chat.lastCachedMessageIndex : 0;
+    const isLastCachedIndexExist = !!chat.lastCachedMessageIndex;
+    let lastCachedMessageIndex = isLastCachedIndexExist ? chat.lastCachedMessageIndex : 0;
 
-   const isStartCacheMessageIndex = !!chat.startCacheMessageIndex
-   let startCacheMessageIndex = isStartCacheMessageIndex ? chat.startCacheMessageIndex : 0;
+    const isStartCacheMessageIndex = !!chat.startCacheMessageIndex;
+    let startCacheMessageIndex = isStartCacheMessageIndex ? chat.startCacheMessageIndex : 0;
 
+    const modelResponse = await AIModel.createApiCall(
+      userData,
+      chat.messages,
+      lastCachedMessageIndex,
+      startCacheMessageIndex,
+      input,
+    );
 
-    const modelResponse = await AIModel.createApiCall(userData, chat.messages, lastCachedMessageIndex, startCacheMessageIndex, input);
-
-    const aiMessage = modelResponse.aiMessage
-    const newLastCachedIndex = modelResponse.newLastCachedIndex
-    const newStartCacheIndex = modelResponse.newStartCacheIndex
+    const aiMessage = modelResponse.aiMessage;
+    const newLastCachedIndex = modelResponse.newLastCachedIndex;
+    const newStartCacheIndex = modelResponse.newStartCacheIndex;
 
     const aiMessageForHistory = AIModel.generateMessageForHistory('assistant', aiMessage);
     const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
-   
-    await Chats.findByIdAndUpdate(
-      sessionId,
-      {
+
+    await Chats.findByIdAndUpdate(sessionId, {
+      $push: {
+        messages: {
+          $each: [userMessageForHistory, aiMessageForHistory],
+        },
+      },
+      startCacheMessageIndex: newStartCacheIndex,
+      lastCachedMessageIndex: newLastCachedIndex,
+    });
+
+    res.status(200).json(aiMessageForHistory);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
+  const sessionId = req.params.sessionId;
+  const input = req.body.input;
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  try {
+    const chat = await Chats.getChatById(sessionId);
+
+    const user = await User.get(chat.userId);
+
+    const userData = {
+      name: user.name,
+      gender: user.sex,
+    };
+
+    const isLastCachedIndexExist = !!chat.lastCachedMessageIndex;
+    let lastCachedMessageIndex = isLastCachedIndexExist ? chat.lastCachedMessageIndex : 0;
+
+    const isStartCacheMessageIndex = !!chat.startCacheMessageIndex;
+    let startCacheMessageIndex = isStartCacheMessageIndex ? chat.startCacheMessageIndex : 0;
+
+    const modelResponse = await AIModel.createSdkApiCall(
+      userData,
+      chat.messages,
+      lastCachedMessageIndex,
+      startCacheMessageIndex,
+      input,
+      res,
+    );
+
+    const aiMessage = modelResponse.aiMessage;
+    const newLastCachedIndex = modelResponse.newLastCachedIndex;
+    const newStartCacheIndex = modelResponse.newStartCacheIndex;
+
+    const aiMessageForHistory = AIModel.generateMessageForHistory('assistant', aiMessage);
+    const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
+
+    if (chat.messages.length <= 1) {
+      await Chats.findByIdAndUpdate(sessionId, {
+        $push: {
+          messages: {
+            $each: [aiMessageForHistory],
+          },
+        },
+        startCacheMessageIndex: newStartCacheIndex,
+        lastCachedMessageIndex: newLastCachedIndex,
+      });
+    } else {
+      await Chats.findByIdAndUpdate(sessionId, {
         $push: {
           messages: {
             $each: [userMessageForHistory, aiMessageForHistory],
           },
         },
-        startCacheMessageIndex : newStartCacheIndex,
-        lastCachedMessageIndex: newLastCachedIndex
-      },
-    );
+        startCacheMessageIndex: newStartCacheIndex,
+        lastCachedMessageIndex: newLastCachedIndex,
+      });
+    }
 
-    res.status(200).json(aiMessageForHistory);
+    res.end();
+
+    res.on('close', () => {
+      res.end();
+    });
+
+    return;
   } catch (error) {
+    res.end();
     next(error);
   }
 };

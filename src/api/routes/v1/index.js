@@ -35,6 +35,6 @@ router.use('/revenuecat', revenuecatRoutes);
 router.use('/instructor_tractionData', instructor_tractionData);
 router.use('/articles', articleRoutes);
 router.use('/chats', chatsRoutes);
-router.use('/challenge',challengeRoutes)
+router.use('/challenge', challengeRoutes);
 
 module.exports = router;

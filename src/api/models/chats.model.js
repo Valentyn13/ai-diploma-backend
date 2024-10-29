@@ -67,8 +67,8 @@ chatSchema.statics = {
 
     const userData = {
       name: user.name,
-      gender: user.sex
-    }
+      gender: user.sex,
+    };
 
     const modelResponse = await AIModel.createApiCall(userData, [], 0, 0, input);
 
@@ -113,14 +113,14 @@ chatSchema.statics = {
         chatId: chat._id,
         firstMessageContent: chat.messages[0].content,
         firstMessageTimestamp: chat.messages[0].timestamp,
-      }
-    })
+      };
+    });
     return normalizedChatsData;
   },
 
   async getChatById(sessionId) {
     const chat = await this.findById(sessionId).populate({
-      path: "summary",
+      path: 'summary',
     });
     if (!chat) {
       throw new APIError({

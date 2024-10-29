@@ -20,6 +20,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@anthropic-ai/sdk@npm:^0.30.1":
+  version: 0.30.1
+  resolution: "@anthropic-ai/sdk@npm:0.30.1"
+  dependencies:
+    "@types/node": ^18.11.18
+    "@types/node-fetch": ^2.6.4
+    abort-controller: ^3.0.0
+    agentkeepalive: ^4.2.1
+    form-data-encoder: 1.7.2
+    formdata-node: ^4.3.2
+    node-fetch: ^2.6.7
+  checksum: 809eb396e5ee749df9f6bdf8da75c54cf68be73118f7901d7a1756033d2f73748dcb179b42115e7e9fe623d6b8a78358779ca6e6f6bcaac328074a637d807c80
+  languageName: node
+  linkType: hard
+
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.5.5":
   version: 7.5.5
   resolution: "@babel/code-frame@npm:7.5.5"
@@ -423,9 +438,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@langchain/anthropic@npm:^0.3.3":
-  version: 0.3.3
-  resolution: "@langchain/anthropic@npm:0.3.3"
+"@langchain/anthropic@npm:^0.3.5":
+  version: 0.3.5
+  resolution: "@langchain/anthropic@npm:0.3.5"
   dependencies:
     "@anthropic-ai/sdk": ^0.27.3
     fast-xml-parser: ^4.4.1
@@ -433,26 +448,26 @@ __metadata:
     zod-to-json-schema: ^3.22.4
   peerDependencies:
     "@langchain/core": ">=0.2.21 <0.4.0"
-  checksum: 194205197de002b441d419d63c76611a6406e87766dd33b93bc74a13cfa12872226e5d51d4cdacc76f14155176eafd1b26eaf958a3549efdce7cee501a77a841
+  checksum: a241f3f863dbf1c233802553f3b955e4d71c114e5736eb344ba85aaece8d6d3596a0b4bd9ebabaf5bca180f913da242b0f72bebaba8d7600a88f489e44ced9be
   languageName: node
   linkType: hard
 
-"@langchain/core@npm:^0.3.3":
-  version: 0.3.3
-  resolution: "@langchain/core@npm:0.3.3"
+"@langchain/core@npm:^0.3.13":
+  version: 0.3.13
+  resolution: "@langchain/core@npm:0.3.13"
   dependencies:
     ansi-styles: ^5.0.0
     camelcase: 6
     decamelize: 1.2.0
     js-tiktoken: ^1.0.12
-    langsmith: ^0.1.56
+    langsmith: ^0.1.65
     mustache: ^4.2.0
     p-queue: ^6.6.2
     p-retry: 4
     uuid: ^10.0.0
     zod: ^3.22.4
     zod-to-json-schema: ^3.22.3
-  checksum: 7f803d7855bd18ac8e0c67e14ef12f5f6d6023b73bee472335a936951a206ae9d80958c81dd696338aede5def407b4eb761161aefab816461a38f0685e67bc2e
+  checksum: 9d6c25f9c276f8107c9b7f824d4b5688f23e4b047fc90af8c1bc4149f61ec2f82f5234c7d23a2029a1c2edc95c9a6caef6122017704be35f91c9a0f0498a2f75
   languageName: node
   linkType: hard
 
@@ -5974,16 +5989,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"langchain@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "langchain@npm:0.3.2"
+"langchain@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "langchain@npm:0.3.3"
   dependencies:
     "@langchain/openai": ">=0.1.0 <0.4.0"
     "@langchain/textsplitters": ">=0.0.0 <0.2.0"
     js-tiktoken: ^1.0.12
     js-yaml: ^4.1.0
     jsonpointer: ^5.0.1
-    langsmith: ^0.1.56-rc.1
+    langsmith: ^0.1.56
     openapi-types: ^12.1.3
     p-retry: 4
     uuid: ^10.0.0
@@ -6032,11 +6047,11 @@ __metadata:
       optional: true
     typeorm:
       optional: true
-  checksum: f431fbddb2b9d421b764becefafe22c7ac0d862a4b5408050a83468f99ac6278d73112d15304c57247ca173c4bbcf6d670fe79959c4bc8f2c59fdf1fc6f0461a
+  checksum: f9171264367e0c12a278b59dc3b8d2663dc10048b4349324571166f953e972541299d638874a03f4eb3f30051765678c99cebb0dcf601de0866c951d8f01fb2f
   languageName: node
   linkType: hard
 
-"langsmith@npm:^0.1.56, langsmith@npm:^0.1.56-rc.1":
+"langsmith@npm:^0.1.56":
   version: 0.1.61
   resolution: "langsmith@npm:0.1.61"
   dependencies:
@@ -6052,6 +6067,25 @@ __metadata:
     openai:
       optional: true
   checksum: ea32c2947573983c41f41c7a28a051a1bea2004aa3bd85d1e9945d8a6f8e6fc0c3c92d2de9ec60609d7f034db07c2e796a1ec40d019ad2c722c6f6be8e107170
+  languageName: node
+  linkType: hard
+
+"langsmith@npm:^0.1.65":
+  version: 0.1.66
+  resolution: "langsmith@npm:0.1.66"
+  dependencies:
+    "@types/uuid": ^10.0.0
+    commander: ^10.0.1
+    p-queue: ^6.6.2
+    p-retry: 4
+    semver: ^7.6.3
+    uuid: ^10.0.0
+  peerDependencies:
+    openai: "*"
+  peerDependenciesMeta:
+    openai:
+      optional: true
+  checksum: 9c0cb365e2278a255dc0d045402fbec67cf3a6314e7858b398a267b1e97d3f24e5b4ba5286c80a3fe6c13443ac1fca8fd1555f3a0990b74b7c6be8c608581394
   languageName: node
   linkType: hard
 
@@ -8917,8 +8951,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "regapp-server@workspace:."
   dependencies:
-    "@langchain/anthropic": ^0.3.3
-    "@langchain/core": ^0.3.3
+    "@anthropic-ai/sdk": ^0.30.1
+    "@langchain/anthropic": ^0.3.5
+    "@langchain/core": ^0.3.13
     apidoc: ^0.17.5
     axios: ^0.19.0
     bcryptjs: 2.4.3
@@ -8945,7 +8980,7 @@ __metadata:
     husky: ^3.0.7
     joi: ^10.4.1
     jwt-simple: 0.5.6
-    langchain: ^0.3.2
+    langchain: ^0.3.3
     lodash: ^4.17.4
     method-override: ^3.0.0
     mocha: ^6.2.2
