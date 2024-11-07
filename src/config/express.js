@@ -11,6 +11,7 @@ const {logs} = require('./vars');
 const strategies = require('./passport');
 const logger = require('../config/logger');
 const error = require('../api/middlewares/error');
+const Sentry = require("@sentry/node");
 
 /**
  * Express instance
@@ -47,6 +48,8 @@ passport.use('apple', strategies.apple);
 
 // mount api v1 routes
 app.use('/v1', routes);
+
+Sentry.setupExpressErrorHandler(app);
 
 // if error is not an instanceOf APIError, convert it.
 app.use(error.converter);
