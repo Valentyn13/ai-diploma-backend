@@ -4,9 +4,11 @@ const cron = require('node-schedule');
 var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
 const Notification = require('../models/notification.model');
 const logger = require('../../config/logger');
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
 const sendPushNotificationAfterOneDay = async () => {
   try {
     const aggregateArray = [
@@ -60,7 +62,6 @@ const sendPushNotificationAfterOneDay = async () => {
           createdAt: 1,
         },
       },
-
       {
         $project: {
           fcm: '$notificationsinfo.fcm',
@@ -73,31 +74,34 @@ const sendPushNotificationAfterOneDay = async () => {
     const notificationInfo = await User.aggregate(aggregateArray);
 
     for (let i = 0; i !== notificationInfo.length; i++) {
-      
-      logger.info(`sending constant notifiation to new user with fcm ${notificationInfo[i].fcm}`);
-      
-      admin
-        .messaging()
-        .send({
-          token: notificationInfo[i].fcm,
-          notification: {body: notificationData.body, title: notificationData.title},
-          android: {
-            notification: {
-              body: notificationData.body,
-              title: notificationData.title,
-              color: '#fff566',
-              priority: 'high',
-              sound: 'default',
-              vibrateTimingsMillis: [200, 500, 800],
-              imageUrl: notificationData.imageUrl,
+      if (notificationInfo[i].fcm) {
+        logger.info(`sending constant notification to new user with fcm ${notificationInfo[i].fcm}`);
+
+        admin
+          .messaging()
+          .send({
+            token: notificationInfo[i].fcm,
+            notification: {body: notificationData.body, title: notificationData.title},
+            android: {
+              notification: {
+                body: notificationData.body,
+                title: notificationData.title,
+                color: '#fff566',
+                priority: 'high',
+                sound: 'default',
+                vibrateTimingsMillis: [200, 500, 800],
+                imageUrl: notificationData.imageUrl,
+              },
             },
-          },
-        })
-        .then((msg) => {
-          logger.info(`message sent to ${notificationInfo[i].fcm}`);
-        }).catch((err) => {
+          })
+          .then((msg) => {
+            logger.info(`message sent to ${notificationInfo[i].fcm}`);
+          }).catch((err) => {
           logger.error(`failed to send message to ${notificationInfo[i].fcm}: ${err.toString()}`);
         });
+      } else {
+        logger.warn(`fcmtoken is undefined for user ${notificationInfo[i].userId}`);
+      }
     }
   } catch (error) {
     logger.error(`sendPushNotificationAfterOneDay failed: ${error.toString}`);
@@ -138,44 +142,46 @@ const initializeNotification = async () => {
     const userNotificationInfo = await User.aggregate(aggregateArray);
 
     for (let i = 0; i !== userNotificationInfo.length; i++) {
+      if (userNotificationInfo[i].fcmtoken) {
+        let userId = userNotificationInfo[i].userId.toString();
+        cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
 
-      let userId = userNotificationInfo[i].userId.toString();
-      cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
-     
-      let hour = new Date(userNotificationInfo[i].notificationTime).getHours();
-      let mints = new Date(userNotificationInfo[i].notificationTime).getMinutes();
-      const jobSchedule = `0 ${mints} ${hour} * * *`;
-      
-      logger.info(`initializing cron job for user ${userId} scheduled at ${jobSchedule} with fcm token ${userNotificationInfo[i].fcmtoken}`);
+        let hour = new Date(userNotificationInfo[i].notificationTime).getHours();
+        let mints = new Date(userNotificationInfo[i].notificationTime).getMinutes();
+        const jobSchedule = `0 ${mints} ${hour} * * *`;
 
-      // schedule cron job for each user
-      cron.scheduleJob(userId, jobSchedule, () => {
+        logger.info(`initializing cron job for user ${userId} scheduled at ${jobSchedule} with fcm token ${userNotificationInfo[i].fcmtoken}`);
 
-        logger.info(`sending user notificaion to user ${userId} with fcm token ${userNotificationInfo[i].fcmtoken}`);
-        
-        admin
-          .messaging()
-          .send({
-            token: userNotificationInfo[i].fcmtoken,
-            notification: {body: notificationData.body, title: notificationData.title},
-            android: {
-              notification: {
-                body: notificationData.body,
-                title: notificationData.title,
-                color: '#fff566',
-                priority: 'high',
-                sound: 'default',
-                vibrateTimingsMillis: [200, 500, 800],
-                imageUrl: notificationData.imageUrl,
+        // schedule cron job for each user
+        cron.scheduleJob(userId, jobSchedule, () => {
+          logger.info(`sending user notification to user ${userId} with fcm token ${userNotificationInfo[i].fcmtoken}`);
+
+          admin
+            .messaging()
+            .send({
+              token: userNotificationInfo[i].fcmtoken,
+              notification: {body: notificationData.body, title: notificationData.title},
+              android: {
+                notification: {
+                  body: notificationData.body,
+                  title: notificationData.title,
+                  color: '#fff566',
+                  priority: 'high',
+                  sound: 'default',
+                  vibrateTimingsMillis: [200, 500, 800],
+                  imageUrl: notificationData.imageUrl,
+                },
               },
-            },
-          })
-          .then((msg) => {
-            logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
-          }).catch((err) => {
+            })
+            .then((msg) => {
+              logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
+            }).catch((err) => {
             logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
           });
-      });
+        });
+      } else {
+        logger.warn(`fcmtoken is undefined for user ${userNotificationInfo[i].userId}`);
+      }
     }
   } catch (error) {
     logger.error(`initializeNotification failed ${error.toString()}`);
@@ -185,11 +191,6 @@ const initializeNotification = async () => {
 const sendManualhNotification = async () => {
   try {
     const aggregateArray = (testNotification) => ([
-      // {
-      //   $addFields: {
-      //     currDate: new Date(),
-      //   },
-      // },
       {
         $match: {
           ...(testNotification ? {'manualNotificationTester': true} : {}),
@@ -222,42 +223,43 @@ const sendManualhNotification = async () => {
     const notificationData = await Notification.findOneAndUpdate({type: 'manual', sent: false, sendAt: { $lte: currentDate }}, {sent: true});
 
     if (notificationData != null) {
-      
-      const userNotificationInfo = await User.aggregate(aggregateArray(notificationData.test));  
+      const userNotificationInfo = await User.aggregate(aggregateArray(notificationData.test));
 
       logger.info(`${currentDate.toString()} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
 
       for (let i = 0; i !== userNotificationInfo.length; i++) {
+        if (userNotificationInfo[i].fcmtoken) {
+          logger.info(`sending manual notification to ${userNotificationInfo[i].fcmtoken}`);
 
-        logger.info(`sending manual notificaion to ${userNotificationInfo[i].fcmtoken}`);
-
-        admin
-          .messaging()
-          .send({
-            token: userNotificationInfo[i].fcmtoken,
-            notification: {body: notificationData.body, title: notificationData.title},
-            android: {
-              notification: {
-                body: notificationData.body,
-                title: notificationData.title,
-                color: '#fff566',
-                priority: 'high',
-                sound: 'default',
-                vibrateTimingsMillis: [200, 500, 800],
-                imageUrl: notificationData.imageUrl,
+          admin
+            .messaging()
+            .send({
+              token: userNotificationInfo[i].fcmtoken,
+              notification: {body: notificationData.body, title: notificationData.title},
+              android: {
+                notification: {
+                  body: notificationData.body,
+                  title: notificationData.title,
+                  color: '#fff566',
+                  priority: 'high',
+                  sound: 'default',
+                  vibrateTimingsMillis: [200, 500, 800],
+                  imageUrl: notificationData.imageUrl,
+                },
               },
-            },
-          })
-          .then(() => {
-            logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
-          }).catch((err) => {
+            })
+            .then(() => {
+              logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
+            }).catch((err) => {
             logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
-          }) 
+          });
+        } else {
+          logger.warn(`fcmtoken is undefined for user ${userNotificationInfo[i].userId}`);
+        }
       }
     } else {
       logger.info(`${currentDate} - no manual notifications found`);
     }
-
   } catch (error) {
     logger.error(`sendManualhNotification failed: ${error.toString()}`);
   }
