@@ -119,9 +119,7 @@ chatSchema.statics = {
   },
 
   async getChatById(sessionId) {
-    const chat = await this.findById(sessionId).populate({
-      path: 'summary',
-    });
+    const chat = await this.findById(sessionId)
     if (!chat) {
       throw new APIError({
         message: `Chat with id ${sessionId} not found`,

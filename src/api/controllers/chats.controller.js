@@ -1,13 +1,16 @@
 const mongoose = require('mongoose');
-
+const validateObjectId = require('../validations/isObjectId');
+const validateChatInput = require('../validations/validateChatInput');
 const Chats = require('../models/chats.model');
 const AIModel = require('../../config/llm');
 const User = require('../models/user.model');
 
 exports.loadById = async (req, res, next) => {
+  const id = req.params.sessionId;
   try {
-    const chat = await Chats.getChatById(req.params.sessionId);
-    res.status(200).json(chat);
+    validateObjectId(id);
+    const chat = await Chats.getChatById(id);
+    return res.status(200).json(chat);
   } catch (error) {
     next(error);
   }
@@ -16,17 +19,20 @@ exports.loadById = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   const id = req.params.sessionId;
   try {
+    validateObjectId(id);
     await Chats.deleteChat(id);
-    res.status(200).json({deleted: true});
+    return res.status(200).json({deleted: true});
   } catch (error) {
     next(error);
   }
 };
 
 exports.loadAll = async (req, res, next) => {
+  const id = req.query.userId;
   try {
-    const chats = await Chats.getUserChats(req.query.userId);
-    res.status(200).json(chats);
+    validateObjectId(id);
+    const chats = await Chats.getUserChats(id);
+    return res.status(200).json(chats);
   } catch (error) {
     next(error);
   }
@@ -36,8 +42,11 @@ exports.create = async (req, res, next) => {
   const input = req.body.input;
   const userId = req.query.userId;
   try {
+    validateObjectId(userId);
+    validateChatInput(input);
+
     const chat = await Chats.createChat(input, userId);
-    res.status(200).json(chat);
+    return res.status(200).json(chat);
   } catch (error) {
     console.log(error);
     next(error);
@@ -52,6 +61,11 @@ exports.createStreamingChat = async (req, res, next) => {
   const stringIdRepresentation = objectId.toString();
 
   try {
+    validateObjectId(userId);
+    validateChatInput(input);
+
+    await User.get(userId);
+
     const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
 
     const chat = await Chats.create({
@@ -60,9 +74,8 @@ exports.createStreamingChat = async (req, res, next) => {
       messages: [userMessageForHistory],
       userId,
     });
-    res.status(200).json(chat);
+    return res.status(200).json(chat);
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -72,6 +85,9 @@ exports.sendMessageToAi = async (req, res, next) => {
   const input = req.body.input;
 
   try {
+    validateObjectId(sessionId);
+    validateChatInput(input);
+
     const chat = await Chats.getChatById(sessionId);
 
     const user = await User.get(chat.userId);
@@ -112,7 +128,7 @@ exports.sendMessageToAi = async (req, res, next) => {
       lastCachedMessageIndex: newLastCachedIndex,
     });
 
-    res.status(200).json(aiMessageForHistory);
+    return res.status(200).json(aiMessageForHistory);
   } catch (error) {
     next(error);
   }
@@ -128,6 +144,9 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
   res.flushHeaders();
 
   try {
+    validateObjectId(sessionId);
+    validateChatInput(input);
+    
     const chat = await Chats.getChatById(sessionId);
 
     const user = await User.get(chat.userId);
@@ -189,7 +208,6 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
 
     return;
   } catch (error) {
-    res.end();
     next(error);
   }
 };
