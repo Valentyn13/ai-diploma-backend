@@ -11,5 +11,4 @@ const chatSummary = new mongoose.Schema({
   },
 });
 
-
 module.exports = mongoose.model('Summary', chatSummary);

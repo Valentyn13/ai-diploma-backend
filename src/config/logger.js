@@ -1,10 +1,8 @@
 const winston = require('winston');
 
-const logFormat = winston.format.printf(info => {
+const logFormat = winston.format.printf((info) => {
   const formattedDate = info.timestamp.replace('T', ' ').replace('Z', '');
-  return `${formattedDate} - Rega - ${info.level} - ${
-    info.message
-  }`;
+  return `${formattedDate} - Rega - ${info.level} - ${info.message}`;
 });
 
 const logger = winston.createLogger({
@@ -12,8 +10,8 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     // winston.format.json()
-    logFormat
-),
+    logFormat,
+  ),
   transports: [
     //
     // - Write to all logs with level `info` and below to `combined.log`

@@ -96,9 +96,10 @@ const sendPushNotificationAfterOneDay = async () => {
           })
           .then((msg) => {
             logger.info(`message sent to ${notificationInfo[i].fcm}`);
-          }).catch((err) => {
-          logger.error(`failed to send message to ${notificationInfo[i].fcm}: ${err.toString()}`);
-        });
+          })
+          .catch((err) => {
+            logger.error(`failed to send message to ${notificationInfo[i].fcm}: ${err.toString()}`);
+          });
       } else {
         logger.warn(`fcmtoken is undefined for user ${notificationInfo[i].userId}`);
       }
@@ -150,7 +151,9 @@ const initializeNotification = async () => {
         let mints = new Date(userNotificationInfo[i].notificationTime).getMinutes();
         const jobSchedule = `0 ${mints} ${hour} * * *`;
 
-        logger.info(`initializing cron job for user ${userId} scheduled at ${jobSchedule} with fcm token ${userNotificationInfo[i].fcmtoken}`);
+        logger.info(
+          `initializing cron job for user ${userId} scheduled at ${jobSchedule} with fcm token ${userNotificationInfo[i].fcmtoken}`,
+        );
 
         // schedule cron job for each user
         cron.scheduleJob(userId, jobSchedule, () => {
@@ -175,9 +178,10 @@ const initializeNotification = async () => {
             })
             .then((msg) => {
               logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
-            }).catch((err) => {
-            logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
-          });
+            })
+            .catch((err) => {
+              logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
+            });
         });
       } else {
         logger.warn(`fcmtoken is undefined for user ${userNotificationInfo[i].userId}`);
@@ -190,10 +194,10 @@ const initializeNotification = async () => {
 
 const sendManualhNotification = async () => {
   try {
-    const aggregateArray = (testNotification) => ([
+    const aggregateArray = (testNotification) => [
       {
         $match: {
-          ...(testNotification ? {'manualNotificationTester': true} : {}),
+          ...(testNotification ? {manualNotificationTester: true} : {}),
         },
       },
       {
@@ -216,16 +220,23 @@ const sendManualhNotification = async () => {
           name: 1,
         },
       },
-    ]);
+    ];
 
     let currentDate = new Date();
 
-    const notificationData = await Notification.findOneAndUpdate({type: 'manual', sent: false, sendAt: { $lte: currentDate }}, {sent: true});
+    const notificationData = await Notification.findOneAndUpdate(
+      {type: 'manual', sent: false, sendAt: {$lte: currentDate}},
+      {sent: true},
+    );
 
     if (notificationData != null) {
       const userNotificationInfo = await User.aggregate(aggregateArray(notificationData.test));
 
-      logger.info(`${currentDate.toString()} - sending manual notification to ${(notificationData.test ? 'TEST' : 'ALL')} users (#${userNotificationInfo.length} devices)`);
+      logger.info(
+        `${currentDate.toString()} - sending manual notification to ${notificationData.test ? 'TEST' : 'ALL'} users (#${
+          userNotificationInfo.length
+        } devices)`,
+      );
 
       for (let i = 0; i !== userNotificationInfo.length; i++) {
         if (userNotificationInfo[i].fcmtoken) {
@@ -250,9 +261,10 @@ const sendManualhNotification = async () => {
             })
             .then(() => {
               logger.info(`message sent to ${userNotificationInfo[i].fcmtoken}`);
-            }).catch((err) => {
-            logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
-          });
+            })
+            .catch((err) => {
+              logger.error(`failed to send message to ${userNotificationInfo[i].fcmtoken}: ${err.toString()}`);
+            });
         } else {
           logger.warn(`fcmtoken is undefined for user ${userNotificationInfo[i].userId}`);
         }
@@ -272,23 +284,25 @@ const calculateMeditationChallenge = async () => {
       {
         $group: {
           _id: null,
-          total: { $sum: {
-            $ifNull: ['$userProgress.minutesPracticed', 0]
-          } },
+          total: {
+            $sum: {
+              $ifNull: ['$userProgress.minutesPracticed', 0],
+            },
+          },
         },
       },
       {
         $out: 'meditationchallenges',
-      }
-    ])
+      },
+    ]);
   } catch (error) {
     console.log('Error calculating meditation challenge', error);
   }
-}
+};
 
 module.exports = {
   sendPushNotificationAfterOneDay,
   initializeNotification,
   sendManualhNotification,
-  calculateMeditationChallenge
+  calculateMeditationChallenge,
 };

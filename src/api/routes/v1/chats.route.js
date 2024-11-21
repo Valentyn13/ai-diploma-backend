@@ -24,6 +24,10 @@ router.route('/create/sse').post(authorize(LOGGED_USER_NO_ID), controller.create
 
 // SEND MESSAGE TO AI IN CHAT
 router.route('/message/:sessionId').post(authorize(LOGGED_USER_NO_ID), controller.sendMessageToAi);
-router.post('/message/sse/:sessionId',authorize(LOGGED_USER_NO_ID), controller.sendMessageToSdkAiWithStreaming);
+router.post('/message/sse/:sessionId', authorize(LOGGED_USER_NO_ID), controller.sendMessageToSdkAiWithStreaming);
+
+// GET LATEST CHAT ID
+// NOTE: needs query param userId
+router.get('/id/latest', controller.getLatestChatId);
 
 module.exports = router;

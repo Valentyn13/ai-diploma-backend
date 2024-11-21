@@ -108,7 +108,6 @@ exports.sendTestNotification = async (req, res, next) => {
     const user = await User.findOne({_id: id});
 
     if (user) {
-
       const fcmTokens = await FcmToken.find({userId: user._id});
 
       logger.info(`found ${fcmTokens.length} fcmTokens for user ${id}`);
@@ -130,20 +129,23 @@ exports.sendTestNotification = async (req, res, next) => {
       }));
 
       admin
-      .messaging()
-      .sendAll(messages)
-      .then((sendRes) => {
-        logger.info(`sendAll response for fcmToken ${JSON.stringify(fcmTokens.map(({fcm}) => fcm))}: ${JSON.stringify(sendRes)}`);
-      }).catch((err) => {
-        logger.info(`sendAll failed with err: ${err.toString()}`);
-      });
-
+        .messaging()
+        .sendAll(messages)
+        .then((sendRes) => {
+          logger.info(
+            `sendAll response for fcmToken ${JSON.stringify(fcmTokens.map(({fcm}) => fcm))}: ${JSON.stringify(
+              sendRes,
+            )}`,
+          );
+        })
+        .catch((err) => {
+          logger.info(`sendAll failed with err: ${err.toString()}`);
+        });
     } else {
       logger.info(`did not find user by id, ignoring sendTestNotification request`);
     }
-    
-    res.json();
 
+    res.json();
   } catch (error) {
     logger.error(`saveNotification failed: ${error.toString()}`);
     next(error);

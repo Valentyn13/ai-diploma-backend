@@ -2,16 +2,16 @@ const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 
 const User = require('./user.model');
-const Summary = require('./chatSummary.model');
 const APIError = require('../utils/APIError');
-const AIModel = require('../../config/llm');
-
-const roles = ['user', 'assistant'];
+const {createApiCall} = require('../../config/llm/api');
+const {generateMessageForHistory} = require('../../config/llm/helpers');
+const {CHAT_CATEGORIES} = require('../../constants/chatCategories');
+const ROLES = ['user', 'assistant'];
 
 const messageSchema = new mongoose.Schema({
   role: {
     type: String,
-    enum: roles,
+    enum: ROLES,
     required: true,
   },
   content: {
@@ -47,6 +47,10 @@ const chatSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    category: {
+      type: String,
+      enum: CHAT_CATEGORIES,
+    },
     messages: {
       type: [messageSchema],
     },
@@ -70,12 +74,12 @@ chatSchema.statics = {
       gender: user.sex,
     };
 
-    const modelResponse = await AIModel.createApiCall(userData, [], 0, 0, input);
+    const modelResponse = await createApiCall(userData, [], 0, 0, input);
 
     const aiMessage = modelResponse.aiMessage;
 
-    const aiMessageForHistory = AIModel.generateMessageForHistory('assistant', aiMessage);
-    const userMessageForHistory = AIModel.generateMessageForHistory('user', input);
+    const aiMessageForHistory = generateMessageForHistory('assistant', aiMessage);
+    const userMessageForHistory = generateMessageForHistory('user', input);
 
     const chat = await this.create({
       _id: objectId,
@@ -83,6 +87,7 @@ chatSchema.statics = {
       messages: [userMessageForHistory, aiMessageForHistory],
       userId,
     });
+
     return chat;
   },
 
@@ -94,8 +99,8 @@ chatSchema.statics = {
         status: httpStatus.NOT_FOUND,
       });
     }
-    await Summary.findByIdAndDelete(chat.summary);
-    return null;
+  
+    return chat;
   },
 
   async getUserChats(userId) {
@@ -106,26 +111,37 @@ chatSchema.statics = {
         status: httpStatus.NOT_FOUND,
       });
     }
+
     const chats = await this.find({userId});
 
     const normalizedChatsData = chats.map((chat) => {
+      if (chat.category) {
+        return {
+          chatId: chat._id,
+          firstMessageContent: chat.messages[0].content,
+          firstMessageTimestamp: chat.messages[0].timestamp,
+          category: chat.category,
+        };
+      }
       return {
         chatId: chat._id,
         firstMessageContent: chat.messages[0].content,
         firstMessageTimestamp: chat.messages[0].timestamp,
       };
     });
+
     return normalizedChatsData;
   },
 
   async getChatById(sessionId) {
-    const chat = await this.findById(sessionId)
+    const chat = await this.findById(sessionId);
     if (!chat) {
       throw new APIError({
         message: `Chat with id ${sessionId} not found`,
         status: httpStatus.NOT_FOUND,
       });
     }
+
     return chat;
   },
 };

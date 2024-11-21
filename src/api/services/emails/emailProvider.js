@@ -140,7 +140,7 @@ exports.cancelSubscription = async (user, reason) => {
     privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
     const port = process.env.EMAIL_PORT;
     const sender = process.env.EMAIL_USERNAME;
-    const transport = transporter
+    const transport = transporter;
 
     // verify connection configuration
     transport.verify((error) => {

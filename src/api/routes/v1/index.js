@@ -11,14 +11,16 @@ const instructor_tractionData = require('./instructor_tractionData.route.js');
 const articleRoutes = require('./article.route');
 const chatsRoutes = require('./chats.route');
 const challengeRoutes = require('./meditationChallenge.route.js');
-
+const { authorize, LOGGED_USER_NO_ID } = require('../../middlewares/auth.js');
 const router = express.Router();
 
 /**
  * GET v1/status
  */
 router.get('/status', (req, res) => res.send('OK'));
-
+router.get('/auth-status', authorize(LOGGED_USER_NO_ID), (req, res) => {
+    res.status(200).json({status: 'ok'});
+});
 /**
  * GET v1/docs
  */

@@ -11,7 +11,7 @@ const {logs} = require('./vars');
 const strategies = require('./passport');
 const logger = require('../config/logger');
 const error = require('../api/middlewares/error');
-const Sentry = require("@sentry/node");
+const Sentry = require('@sentry/node');
 
 /**
  * Express instance

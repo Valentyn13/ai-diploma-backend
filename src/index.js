@@ -1,5 +1,5 @@
 const {port, env} = require('./config/vars');
-require("./instrument.js");
+require('./instrument.js');
 const logger = require('./config/logger');
 const app = require('./config/express');
 var cron = require('node-cron');
@@ -20,9 +20,9 @@ app.listen(port, () => {
   } else {
     logger.info('skipping crons in dev env (except manual)');
   }
-  cron.schedule('0 * * * *',() => {
-    cronfun.calculateMeditationChallenge()
-  })
+  cron.schedule('0 * * * *', () => {
+    cronfun.calculateMeditationChallenge();
+  });
   cron.schedule('*/10 * * * *', () => {
     cronfun.sendManualhNotification();
   });

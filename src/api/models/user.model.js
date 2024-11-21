@@ -84,6 +84,9 @@ const userSchema = new mongoose.Schema(
     notificationTime: {
       type: Date,
     },
+    lastActiveSessionId: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
   },
 
   {
@@ -118,7 +121,19 @@ userSchema.pre('save', async function save(next) {
 userSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'name', 'email', 'picture', 'role', 'createdAt', 'sex', 'userPreferences', 'userProgress', 'isNotification', 'notificationTime'];
+    const fields = [
+      'id',
+      'name',
+      'email',
+      'picture',
+      'role',
+      'createdAt',
+      'sex',
+      'userPreferences',
+      'userProgress',
+      'isNotification',
+      'notificationTime',
+    ];
 
     fields.forEach((field) => {
       transformed[field] = this[field];

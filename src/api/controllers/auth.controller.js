@@ -20,14 +20,14 @@ async function addToMailChimp(email) {
       `https://us18.api.mailchimp.com/3.0/lists/${process.env.MAILCHIMP_LIST_ID}/members`,
       {
         email_address: email,
-        status: "subscribed",
+        status: 'subscribed',
       },
       {
         headers: {
           Authorization: `apikey ${process.env.MAILCHIMP_API_KEY}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      }
+      },
     );
   } catch (e) {
     logger.error(`Failed to add email to Mailchimp: ${e.toString()}`);
@@ -123,7 +123,7 @@ exports.login = async (req, res, next) => {
     const userTransformed = user.transform();
     return res.json({token, user: userTransformed});
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return next(error);
   }
 };
