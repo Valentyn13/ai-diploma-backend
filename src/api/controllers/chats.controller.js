@@ -123,6 +123,7 @@ exports.createStreamingChat = async (req, res, next) => {
 exports.sendMessageToAi = async (req, res, next) => {
   const sessionId = req.params.sessionId;
   const input = req.body.input;
+  const chatType = req.query.chatType;
 
   try {
     validateObjectId(sessionId);
