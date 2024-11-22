@@ -133,7 +133,7 @@ exports.sendMessageToAi = async (req, res, next) => {
 
     const user = await User.get(chat.userId);
 
-    if (user.lastActiveSessionId.toString() !== sessionId.toString()) {
+    if (user.lastActiveSessionId?.toString() !== sessionId.toString()) {
       const lastId = await User.findByIdAndUpdate(user._id, {lastActiveSessionId: sessionId}).select(
         'lastActiveSessionId',
       );
