@@ -80,22 +80,26 @@ exports.sendPasswordChangeEmail = async (user) => {
 
 exports.deleteUserData = async (user) => {
   try {
-    const serviceClient = process.env.SERVICE_CLIENT;
-    let privateKey = process.env.PRIVATE_KEY;
-    privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
-    const port = process.env.EMAIL_PORT;
-    const sender = process.env.EMAIL_USERNAME;
-    const transport = nodemailer.createTransport({
-      host: EMAIL_HOST,
-      port,
-      secure: true,
-      auth: {
-        type: 'OAuth2',
-        user: sender,
-        serviceClient,
-        privateKey,
-      },
-    });
+    // const serviceClient = process.env.SERVICE_CLIENT;
+    // let privateKey = process.env.PRIVATE_KEY;
+    // privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
+    // const port = process.env.EMAIL_PORT;
+    // const sender = process.env.EMAIL_USERNAME;
+    // const transport = nodemailer.createTransport({
+    //   host: EMAIL_HOST,
+    //   port,
+    //   secure: true,
+    //   auth: {
+    //     type: 'OAuth2',
+    //     user: sender,
+    //     serviceClient,
+    //     privateKey,
+    //   },
+    // });
+
+    const sender = EMAIL_SENDER;
+
+    const transport = transporter
 
     // verify connection configuration
     transport.verify((error) => {
@@ -109,7 +113,7 @@ exports.deleteUserData = async (user) => {
 
     const info = await transport.sendMail({
       from: sender,
-      to: 'tom@rega.co.il',
+      to: sender,
       subject: 'User from Regaapp request',
       html: temp,
     });
@@ -139,7 +143,7 @@ exports.cancelSubscription = async (user, reason) => {
     // let privateKey = process.env.PRIVATE_KEY;
     // privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
     // const port = process.env.EMAIL_PORT;
-    const sender = process.env.EMAIL_USERNAME;
+    const sender = EMAIL_SENDER
     const transport = transporter;
 
     // verify connection configuration
