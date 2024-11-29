@@ -135,10 +135,10 @@ exports.deleteUserData = async (user) => {
 
 exports.cancelSubscription = async (user, reason) => {
   try {
-    const serviceClient = process.env.SERVICE_CLIENT;
-    let privateKey = process.env.PRIVATE_KEY;
-    privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
-    const port = process.env.EMAIL_PORT;
+    // const serviceClient = process.env.SERVICE_CLIENT;
+    // let privateKey = process.env.PRIVATE_KEY;
+    // privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
+    // const port = process.env.EMAIL_PORT;
     const sender = process.env.EMAIL_USERNAME;
     const transport = transporter;
 
@@ -152,7 +152,7 @@ exports.cancelSubscription = async (user, reason) => {
 
     const info = await transport.sendMail({
       from: sender,
-      to: 'hello@rega.co.il',
+      to: sender,
       subject: 'User Cancel Subscription',
       html: temp,
     });
