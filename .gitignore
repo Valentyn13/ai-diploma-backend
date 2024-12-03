@@ -62,3 +62,5 @@ db-*
 # ec2 pem file
 RegaDev.pem
 regadevserver.pem
+
+src/firebase/google-service-account.json
