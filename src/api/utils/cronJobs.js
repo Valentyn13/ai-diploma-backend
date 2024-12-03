@@ -1,7 +1,7 @@
 const User = require('../models/user.model');
 var admin = require('firebase-admin');
 const cron = require('node-schedule');
-var serviceAccount = require('../../firebase/rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
+var serviceAccount = require('../../firebase/rega-191cd-8a6e3929f882.json');
 const Notification = require('../models/notification.model');
 const logger = require('../../config/logger');
 
