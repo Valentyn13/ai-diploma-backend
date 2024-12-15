@@ -54,12 +54,11 @@ const chatSchema = new mongoose.Schema(
     messages: {
       type: [messageSchema],
     },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
-  {versionKey: false},
+  {
+    versionKey: false,
+    timestamps: true,
+  },
 );
 
 chatSchema.statics = {
@@ -99,7 +98,7 @@ chatSchema.statics = {
         status: httpStatus.NOT_FOUND,
       });
     }
-  
+
     return chat;
   },
 

@@ -5,6 +5,7 @@ const {generateMessageForHistory} = require('../../config/llm/helpers');
 const {createApiCall, createSdkApiCall} = require('../../config/llm/api');
 const User = require('../models/user.model');
 const Chats = require('../models/chats.model');
+const UserInsight = require('../models/userInsight.model');
 
 exports.loadById = async (req, res, next) => {
   const id = req.params.sessionId;
@@ -201,14 +202,18 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
 
     const user = await User.get(chat.userId);
 
-    const lastSessionIndex = user.lastActiveSessionId
+    const userInsight = await UserInsight.findOne({userId: user._id});
+
+    const personalSummary = userInsight?.personalizedUserInsight?.summary || '';
+
+    const lastSessionIndex = user.lastActiveSessionId;
 
     const userData = {
       name: user.name,
       gender: user.sex,
     };
 
-    const shouldUpdate = lastSessionIndex ? lastSessionIndex.toString() !== sessionId.toString() : true
+    const shouldUpdate = lastSessionIndex ? lastSessionIndex.toString() !== sessionId.toString() : true;
     if (shouldUpdate) {
       await User.findByIdAndUpdate(user._id, {lastActiveSessionId: sessionId}).select('lastActiveSessionId');
     }
@@ -226,6 +231,7 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
       startCacheMessageIndex,
       input,
       chatType,
+      personalSummary,
       res,
     );
 

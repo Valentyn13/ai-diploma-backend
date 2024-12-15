@@ -18,6 +18,7 @@ const roles = ['user', 'admin'];
  */
 const stores = ['PLAY_STORE', 'APP_STORE', 'STRIPE', 'MAC_APP_STORE', 'PROMOTIONAL'];
 
+
 /**
  * User Schema
  * @private
@@ -87,8 +88,11 @@ const userSchema = new mongoose.Schema(
     lastActiveSessionId: {
       type: mongoose.Schema.Types.ObjectId,
     },
+    hasPassedStarterChat: {
+      type: Boolean,
+      default: false,
+    },
   },
-
   {
     timestamps: true,
   },
@@ -133,10 +137,11 @@ userSchema.method({
       'userProgress',
       'isNotification',
       'notificationTime',
+      'hasPassedStarterChat'
     ];
 
     fields.forEach((field) => {
-      transformed[field] = this[field];
+      if(this[field] !== undefined) transformed[field] = this[field];
     });
 
     return transformed;

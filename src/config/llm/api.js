@@ -1,6 +1,6 @@
 const {HumanMessage, SystemMessage} = require('@langchain/core/messages');
 const {sdkAnthropicModel, langchainAnthropicModel} = require('./models');
-
+const {SUMMARIZE_PROMPT} = require('./prompts');
 const {
   convertHistorySdkMessage,
   convertHistoryMessagesToAiStyle,
@@ -97,6 +97,7 @@ const createSdkApiCall = async (
   startCacheMessageIndex,
   input,
   chatType,
+  personalSummary,
   res,
 ) => {
   let newLastCachedIndex = lastCachedMessageIndex;
@@ -104,6 +105,8 @@ const createSdkApiCall = async (
 
   // Generate sysprompt
   const sysprompt = generateSystemPrompt(userData, chatType);
+
+  const combinedSystemPrompt = `${sysprompt}\n${personalSummary}`;
 
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
@@ -154,7 +157,7 @@ const createSdkApiCall = async (
     system: [
       {
         type: 'text',
-        text: sysprompt + cacheData,
+        text: combinedSystemPrompt + cacheData,
         cache_control: {type: 'ephemeral'},
       },
     ],
@@ -195,7 +198,30 @@ const createSdkApiCall = async (
   return {aiMessage, newLastCachedIndex, newStartCacheIndex};
 };
 
+const createSummarization = async (messages) => {
+  let questions = '';
+  let answers = 'answers by the user:\n';
+
+  messages.forEach(({question, answer}, i) => {
+    const index = i + 1;
+    answers += `${index}. ${answer}\n`;
+    questions += `${index}. ${question}\n`;
+  });
+
+  const input = `${SUMMARIZE_PROMPT + questions}\n${answers}`;
+
+  const response = await sdkAnthropicModel.messages.create({
+    model: process.env.CHEAPEST_ANTHROPIC_MODEL,
+    max_tokens: 600,
+    temperature: 0.2,
+    messages: [{role: 'user', content: input}],
+  });
+
+  return response.content[0].text;
+};
+
 module.exports = {
   createApiCall,
   createSdkApiCall,
+  createSummarization,
 };
