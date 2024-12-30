@@ -25,24 +25,16 @@ app.listen(port, () => {
     });
 
     // Send batches every day at 4:00 AM
-    cron.schedule(
-      '0 4 * * *',
-      () => {
-        logger.info('Executing sendBatchMessagesCronJob at 4:00 AM');
-        sendBatchMessagesCronJob();
-      },
-      {timezone: 'Asia/Jerusalem'},
-    );
+    cron.schedule('0 3 * * *', () => {
+      logger.info('Executing sendBatchMessagesCronJob at 3:00 AM UTC-0');
+      sendBatchMessagesCronJob();
+    });
 
     // Send batches every day at 2:00 PM
-    cron.schedule(
-      '0 14 * * *',
-      () => {
-        logger.info('Executing sendBatchMessagesCronJob at 14:00 PM');
-        sendBatchMessagesCronJob();
-      },
-      {timezone: 'Asia/Jerusalem'},
-    );
+    cron.schedule('0 15 * * *', () => {
+      logger.info('Executing sendBatchMessagesCronJob at 15:00 PM UTC-0');
+      sendBatchMessagesCronJob();
+    });
   } else {
     logger.info('skipping crons in dev env (except manual)');
   }
