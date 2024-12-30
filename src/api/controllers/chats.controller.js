@@ -204,6 +204,8 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
 
     const userInsight = await UserInsight.findOne({userId: user._id});
 
+    const categoriesSummary = userInsight?.chatContextUserInsight?.summary || {};
+
     const personalSummary = userInsight?.personalizedUserInsight?.summary || '';
 
     const lastSessionIndex = user.lastActiveSessionId;
@@ -232,6 +234,7 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
       input,
       chatType,
       personalSummary,
+      categoriesSummary,
       res,
     );
 
@@ -272,6 +275,7 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
 
     return;
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };

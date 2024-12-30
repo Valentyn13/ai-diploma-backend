@@ -278,7 +278,6 @@ const sendManualhNotification = async () => {
 };
 
 const calculateMeditationChallenge = async () => {
-  console.log('Calculating meditation challenge');
   try {
     await User.aggregate([
       {
@@ -296,7 +295,7 @@ const calculateMeditationChallenge = async () => {
       },
     ]);
   } catch (error) {
-    console.log('Error calculating meditation challenge', error);
+    logger.error('Error calculating meditation challenge: ', error);
   }
 };
 

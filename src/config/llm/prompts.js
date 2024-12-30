@@ -37,8 +37,16 @@ const INSTRUCTION = `Instructions:
 3) Start answer on last users message right away with advice or your opinion about the message, as a therapist you should choose the best option. 
 4) Respond in the same language the user uses.`;
 
+const TRANSCRIPT_PROMPT = `I will provide a transcript of a patient words in conversation between a therapist and their patient.
+Develop a short and concise summary about the patient, drawing insights from the supplied reference materials. 
+You MUST FOLLOW the rules in order.  role: expert level clinical-psychologist department: mental health task: 
+Create a Patient Summary without recommendations. task_description: high quality attributes The Case  Summary should be accurate, concise, up to 180 tokens or less, in Hebrew. 
+Finished work will be used by the primary therapist or treatment team to inform and guide their ongoing work with the client. Do not make translation, keep summary in Hebrew.
+`;
+
 module.exports = {
   BASIC_SYSPROMPT_MESSAGE,
+  TRANSCRIPT_PROMPT,
   SUMMARIZE_PROMPT,
   PROMPTS,
   INSTRUCTION,

@@ -1,12 +1,17 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-case-declarations */
 const {HumanMessage, SystemMessage} = require('@langchain/core/messages');
 const {sdkAnthropicModel, langchainAnthropicModel} = require('./models');
-const {SUMMARIZE_PROMPT} = require('./prompts');
+const {SUMMARIZE_PROMPT, TRANSCRIPT_PROMPT} = require('./prompts');
 const {
   convertHistorySdkMessage,
   convertHistoryMessagesToAiStyle,
   generateSystemPrompt,
   convertHistoryMessagesToText,
 } = require('./helpers');
+
+const UserInsight = require('../../api/models/userInsight.model');
+const SharedCategoryBatch = require('../../api/models/sharedCategoryBatches');
 
 const createApiCall = async (
   userData,
@@ -98,15 +103,17 @@ const createSdkApiCall = async (
   input,
   chatType,
   personalSummary,
+  categoriesSummary,
   res,
 ) => {
   let newLastCachedIndex = lastCachedMessageIndex;
   let newStartCacheIndex = startCacheMessageIndex;
 
-  // Generate sysprompt
+  const sharedCategoryContext = categoriesSummary[chatType] || '';
+
   const sysprompt = generateSystemPrompt(userData, chatType);
 
-  const combinedSystemPrompt = `${sysprompt}\n${personalSummary}`;
+  const combinedSystemPrompt = `${sysprompt}\n${personalSummary} \n${sharedCategoryContext}`;
 
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
@@ -220,8 +227,125 @@ const createSummarization = async (messages) => {
   return response.content[0].text;
 };
 
+const createSdkBatch = async (data) => {
+  const batchQueries = data.map(({messages, uuid}) => {
+    let userMessagesInTextFormat = 'User phrases:\n';
+    messages.forEach((message) => {
+      userMessagesInTextFormat += `${message.content}\n`;
+    });
+    const input = `${TRANSCRIPT_PROMPT}\n${userMessagesInTextFormat} \nPatient Summary:`;
+    return {
+      custom_id: uuid,
+      params: {
+        model: process.env.CHEAPEST_ANTHROPIC_MODEL,
+        max_tokens: 400,
+        messages: [{role: 'user', content: input}],
+      },
+    };
+  });
+
+  const messageBatch = await sdkAnthropicModel.beta.messages.batches.create({
+    requests: batchQueries,
+  });
+
+  return messageBatch;
+};
+
+const retrieveBatchData = async (batchId) => {
+  const messageBatch = await sdkAnthropicModel.beta.messages.batches.retrieve(batchId);
+
+  return messageBatch;
+};
+
+const getBatchResults = async (batchId) => {
+  for await (const result of await sdkAnthropicModel.beta.messages.batches.results(batchId)) {
+    const resultType = result.result.type;
+    switch (resultType) {
+      case 'succeeded':
+        const [userId, category] = result.custom_id.split('-');
+
+        const summaryText = result.result.message.content[0].text;
+
+        const newSummary = {
+          [category]: summaryText,
+        };
+
+        const userInsight = await UserInsight.findOne({userId});
+
+        if (userInsight) {
+          // If chatContextUserInsight exists, update the summary
+          if (userInsight.chatContextUserInsight) {
+            const updatedSummary = {
+              ...userInsight.chatContextUserInsight.summary,
+              ...newSummary,
+            };
+            userInsight.chatContextUserInsight.summary = updatedSummary;
+            await userInsight.save();
+          } else {
+            // If chatContextUserInsight doesn't exist, create it
+            userInsight.chatContextUserInsight = {summary: newSummary};
+            await userInsight.save();
+          }
+        } else {
+          // If userInsight doesn't exist, create a new document
+          await UserInsight.create({
+            userId,
+            chatContextUserInsight: {summary: newSummary},
+          });
+        }
+        break;
+      default:
+        await SharedCategoryBatch.updateOne(
+          {batchId},
+          {
+            $set: {hasErrorsInSubRequests: true},
+            $push: {failedRequestsIds: custom_id},
+          },
+        );
+        break;
+    }
+  }
+};
+
+const checkAndRetrieveBatchData = async (batches) =>{
+  const promises = batches.map(async (batch) => {
+    const result = await retrieveBatchData(batch.batchId);
+    const currentTime = Date.now();
+  
+    const update = {batchId: batch.batchId, status_check_time: currentTime};
+
+    if (result.processing_status === 'ended') {
+      await getBatchResults(batch.batchId);
+      return {
+        ...update,
+        processing_status: 'ended',
+      };
+    }
+    return update;
+  });
+
+  // Execute all updates in parallel
+  const updates = await Promise.all(promises);
+
+  // Bulk update after processing all batches
+  if (updates.length > 0) {
+    await SharedCategoryBatch.bulkWrite(
+      updates.map((update) => ({
+        updateOne: {
+          filter: {batchId: update.batchId},
+          update: {$set: update},
+        },
+      })),
+    );
+  }
+}
+
 module.exports = {
   createApiCall,
   createSdkApiCall,
   createSummarization,
+  createSdkBatch,
+  checkAndRetrieveBatchData,
+  retrieveBatchData,
+  getBatchResults,
 };

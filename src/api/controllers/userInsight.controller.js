@@ -37,19 +37,14 @@ exports.generateUserInsightsBasedOnUserAnswers = async (req, res, next) => {
       },
     };
 
-    const userInsight = await UserInsight.findOne({userId});
-
-    if (!userInsight || !userInsight.personalizedUserInsight) {
-      await UserInsight.create({userId, personalizedUserInsight: insightObject.personalizedUserInsight});
-
-      return res.status(200).json({});
-    }
-
-    await UserInsight.findOneAndUpdate({userId}, {personalizedUserInsight: insightObject.personalizedUserInsight});
+    await UserInsight.findOneAndUpdate(
+      {userId},
+      {personalizedUserInsight: insightObject.personalizedUserInsight},
+      {upsert: true},
+    );
 
     return res.status(200).json({});
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };

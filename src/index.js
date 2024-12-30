@@ -5,6 +5,7 @@ const app = require('./config/express');
 var cron = require('node-cron');
 const mongoose = require('./config/mongoose');
 const cronfun = require('./api/utils/cronJobs');
+const {sendBatchMessagesCronJob, retrieveAndProcessAllDataCronJob} = require('./api/utils/sharedCategory/cron.js');
 
 // open mongoose connection
 mongoose.connect();
@@ -17,6 +18,31 @@ app.listen(port, () => {
       cronfun.sendPushNotificationAfterOneDay();
     });
     cronfun.initializeNotification();
+
+    // Run checks every 30 minutes
+    cron.schedule('*/30 * * * *', () => {
+      retrieveAndProcessAllDataCronJob();
+    });
+
+    // Send batches every day at 4:00 AM
+    cron.schedule(
+      '0 4 * * *',
+      () => {
+        logger.info('Executing sendBatchMessagesCronJob at 4:00 AM');
+        sendBatchMessagesCronJob();
+      },
+      {timezone: 'Asia/Jerusalem'},
+    );
+
+    // Send batches every day at 2:00 PM
+    cron.schedule(
+      '0 14 * * *',
+      () => {
+        logger.info('Executing sendBatchMessagesCronJob at 14:00 PM');
+        sendBatchMessagesCronJob();
+      },
+      {timezone: 'Asia/Jerusalem'},
+    );
   } else {
     logger.info('skipping crons in dev env (except manual)');
   }
@@ -26,6 +52,7 @@ app.listen(port, () => {
   cron.schedule('*/10 * * * *', () => {
     cronfun.sendManualhNotification();
   });
+
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
 
