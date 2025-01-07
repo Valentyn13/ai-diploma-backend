@@ -10,7 +10,7 @@ const generateUserInstruction = (name, gender) => {
 const generateSystemPrompt = (userData, chatType) => {
   const basePrompt = PROMPTS[chatType] || BASIC_SYSPROMPT_MESSAGE;
 
-  const prompt = basePrompt + generateUserInstruction(userData.name, userData.gender);
+  const prompt = `${basePrompt}\n\n${generateUserInstruction(userData.name, userData.gender)}`;
 
   return prompt;
 };

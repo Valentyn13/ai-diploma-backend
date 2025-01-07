@@ -2,7 +2,7 @@
 /* eslint-disable no-case-declarations */
 const {HumanMessage, SystemMessage} = require('@langchain/core/messages');
 const {sdkAnthropicModel, langchainAnthropicModel} = require('./models');
-const {SUMMARIZE_PROMPT, TRANSCRIPT_PROMPT} = require('./prompts');
+const {SUMMARIZE_PROMPT, TRANSCRIPT_PROMPT, PROMPT_LIMITATION_PROMPT} = require('./prompts');
 const {
   convertHistorySdkMessage,
   convertHistoryMessagesToAiStyle,
@@ -113,7 +113,8 @@ const createSdkApiCall = async (
 
   const sysprompt = generateSystemPrompt(userData, chatType);
 
-  const combinedSystemPrompt = `${sysprompt}\n${personalSummary} \n${sharedCategoryContext}`;
+  // TODO: move PROMPT_LIMITATION_PROMPT at the end when confirmed
+  const combinedSystemPrompt = `${sysprompt}\n\n${personalSummary}\n\n${PROMPT_LIMITATION_PROMPT} \n${sharedCategoryContext}`;
 
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
@@ -307,11 +308,11 @@ const getBatchResults = async (batchId) => {
   }
 };
 
-const checkAndRetrieveBatchData = async (batches) =>{
+const checkAndRetrieveBatchData = async (batches) => {
   const promises = batches.map(async (batch) => {
     const result = await retrieveBatchData(batch.batchId);
     const currentTime = Date.now();
-  
+
     const update = {batchId: batch.batchId, status_check_time: currentTime};
 
     if (result.processing_status === 'ended') {
@@ -338,7 +339,7 @@ const checkAndRetrieveBatchData = async (batches) =>{
       })),
     );
   }
-}
+};
 
 module.exports = {
   createApiCall,
