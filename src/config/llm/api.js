@@ -112,12 +112,8 @@ const createSdkApiCall = async (
 
   const sysprompt = generateSystemPrompt(userData, chatType);
 
-  let combinedSystemPrompt = `${sysprompt}\n\n${personalSummary}\n\n${sharedCategoryContext}`;
+  let combinedSystemPrompt = `${sysprompt}\n\n${personalSummary}\n\n${sharedCategoryContext}\n\n${PROMPT_LIMITATION_PROMPT}`;
 
-  // TODO: enable PROMPT_LIMITATION_PROMPT when confirmed for categories
-  if (!chatType) {
-    combinedSystemPrompt += `\n\n${PROMPT_LIMITATION_PROMPT}`;
-  }
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
   const {cached, uncached} = historyMessages.slice(calculatedIndex).reduce(
