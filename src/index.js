@@ -24,15 +24,17 @@ app.listen(port, () => {
       retrieveAndProcessAllDataCronJob();
     });
 
-    // Send batches every day at 4:00 AM
+    // Send batches every day at 3:00 AM
     cron.schedule('0 3 * * *', () => {
-      logger.info('Executing sendBatchMessagesCronJob at 3:00 AM UTC-0');
+      console.log('Executing sendBatchMessagesCronJob at 3:00 AM UTC-0 (5:00 AM UTC+2)');
+      logger.info('Executing sendBatchMessagesCronJob at 3:00 AM UTC-0 (5:00 AM UTC+2)');
       sendBatchMessagesCronJob();
     });
 
-    // Send batches every day at 2:00 PM
+    // Send batches every day at 15:00 PM
     cron.schedule('0 15 * * *', () => {
-      logger.info('Executing sendBatchMessagesCronJob at 15:00 PM UTC-0');
+      console.log('Executing sendBatchMessagesCronJob at 15:00 PM UTC-0 (17:00 PM UTC+2)');
+      logger.info('Executing sendBatchMessagesCronJob at 15:00 PM UTC-0 (17:00 PM UTC+2)');
       sendBatchMessagesCronJob();
     });
   } else {

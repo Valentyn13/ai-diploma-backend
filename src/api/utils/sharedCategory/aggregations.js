@@ -2,13 +2,16 @@ const Chats = require('../../models/chats.model');
 const logger = require('../../../config/logger');
 
 async function getChatsByCategory() {
-  const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  // NOTE: value should correspond to the frequency of the cron job (currently it's every 12 hours).
+  // const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const last12Hours = new Date(Date.now() - 12 * 60 * 60 * 1000);
+
   const result = await Chats.aggregate([
     // Stage 1: Match chats where category exists and was created/updated in the last 24 hours
     {
       $match: {
         category: {$exists: true},
-        updatedAt: {$gte: last24Hours},
+        updatedAt: {$gte: last12Hours},
       },
     },
     // Stage 2: Group by userId to collect unique categories modified by each user
