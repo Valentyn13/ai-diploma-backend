@@ -24,7 +24,7 @@ const generateMessageForHistory = (role, content) => {
 };
 
 const convertHistoryMessagesToText = (historyMessages) => {
-  let str = `Context: The following are previous messages from the user. Use these for context only. \n Previous messages:`;
+  let str = `Context: The following are previous messages from the user. Use these for context only.\nPrevious messages:\n`;
 
   historyMessages.forEach((message) => {
     str += `${message.role}: ${message.content}.\n `;

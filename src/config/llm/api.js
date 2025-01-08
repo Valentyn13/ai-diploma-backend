@@ -108,42 +108,38 @@ const createSdkApiCall = async (
 ) => {
   let newLastCachedIndex = lastCachedMessageIndex;
   let newStartCacheIndex = startCacheMessageIndex;
-
   const sharedCategoryContext = categoriesSummary[chatType] || '';
 
   const sysprompt = generateSystemPrompt(userData, chatType);
 
-  // TODO: move PROMPT_LIMITATION_PROMPT at the end when confirmed
-  const combinedSystemPrompt = `${sysprompt}\n\n${personalSummary}\n\n${PROMPT_LIMITATION_PROMPT} \n${sharedCategoryContext}`;
+  let combinedSystemPrompt = `${sysprompt}\n\n${personalSummary}\n\n${sharedCategoryContext}`;
 
+  // TODO: enable PROMPT_LIMITATION_PROMPT when confirmed for categories
+  if (!chatType) {
+    combinedSystemPrompt += `\n\n${PROMPT_LIMITATION_PROMPT}`;
+  }
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
   const {cached, uncached} = historyMessages.slice(calculatedIndex).reduce(
     (acc, curr, i) => {
       if (lastCachedMessageIndex === 0) {
-        if (curr.role === 'user') {
-          acc.cached.push(curr);
-        }
+        acc.cached.push(curr);
         return acc;
       }
       if (startCacheMessageIndex === 0) {
-        if (curr.role === 'user') {
-          if (i <= lastCachedMessageIndex) {
-            acc.cached.push(curr);
-          } else {
-            acc.uncached.push(curr);
-          }
+        if (i <= lastCachedMessageIndex) {
+          acc.cached.push(curr);
+        } else {
+          acc.uncached.push(curr);
         }
         return acc;
       }
 
       if (startCacheMessageIndex !== 0) {
-        if (curr.role === 'user') {
-          if (i < lastCachedMessageIndex - startCacheMessageIndex) {
-            acc.cached.push(curr);
-          } else {
-            acc.uncached.push(curr);
-          }
+        if (i < lastCachedMessageIndex - startCacheMessageIndex) {
+          acc.cached.push(curr);
+        } else {
+          acc.uncached.push(curr);
         }
       }
 
@@ -165,7 +161,7 @@ const createSdkApiCall = async (
     system: [
       {
         type: 'text',
-        text: combinedSystemPrompt + cacheData,
+        text: `${combinedSystemPrompt}\n\n${cacheData}`,
         cache_control: {type: 'ephemeral'},
       },
     ],
