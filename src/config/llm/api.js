@@ -190,7 +190,7 @@ const createSdkApiCall = async (
 
   if (response.usage.cache_creation_input_tokens && lastCachedMessageIndex === 0) {
     newLastCachedIndex = historyMessages.length - 1;
-  } else if (response.usage.input_tokens > 1500 && lastCachedMessageIndex !== 0) {
+  } else if (response.usage.input_tokens > 1200 && lastCachedMessageIndex !== 0) {
     newLastCachedIndex = historyMessages.length - 1;
     newStartCacheIndex = lastCachedMessageIndex;
   }
