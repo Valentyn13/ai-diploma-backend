@@ -112,7 +112,7 @@ const createSdkApiCall = async (
 
   const sysprompt = generateSystemPrompt(userData, chatType);
 
-  let combinedSystemPrompt = `${sysprompt}\n\n${personalSummary}\n\n${sharedCategoryContext}\n\n${PROMPT_LIMITATION_PROMPT}`;
+  let combinedSystemPrompt = `${sysprompt}\n\n${personalSummary}\n\n${sharedCategoryContext}`;
 
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
@@ -157,7 +157,7 @@ const createSdkApiCall = async (
     system: [
       {
         type: 'text',
-        text: `${combinedSystemPrompt}\n\n${cacheData}`,
+        text: `${combinedSystemPrompt}\n\n${cacheData}\n\n${PROMPT_LIMITATION_PROMPT}`,
         cache_control: {type: 'ephemeral'},
       },
     ],
@@ -190,7 +190,7 @@ const createSdkApiCall = async (
 
   if (response.usage.cache_creation_input_tokens && lastCachedMessageIndex === 0) {
     newLastCachedIndex = historyMessages.length - 1;
-  } else if (response.usage.input_tokens > 800 && lastCachedMessageIndex !== 0) {
+  } else if (response.usage.input_tokens > 1500 && lastCachedMessageIndex !== 0) {
     newLastCachedIndex = historyMessages.length - 1;
     newStartCacheIndex = lastCachedMessageIndex;
   }
