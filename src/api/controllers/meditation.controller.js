@@ -2,6 +2,8 @@ const Meditation = require('../models/meditation.model');
 const Course = require('../models/course.model');
 const Category = require('../models/category.model');
 const Instructor = require('../models/instructor.model');
+const MeditationByCategories = require('../models/meditationsByCategories.model');
+const MeditationByTimeOfTheDay = require('../models/meditationsByTimeOfTheDay.model');
 const logger = require('../../config/logger');
 const castToMongoID = require('../utils').castToMongoID;
 /**
@@ -27,10 +29,14 @@ exports.listAll = async (req, res, next) => {
     const categories = await Category.list(req.query);
     const courses = await Course.list(req.query);
     const instructors = await Instructor.list(req.query);
+    const meditationsByCategories = await MeditationByCategories.find().lean().exec();
+    const meditationsByTimeOfTheDay = await MeditationByTimeOfTheDay.find().lean().exec();
     res.json({
       categories,
       courses,
       instructors,
+      meditationsByCategories,
+      meditationsByTimeOfTheDay,
     });
   } catch (error) {
     next(error);
