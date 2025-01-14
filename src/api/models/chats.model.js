@@ -120,12 +120,14 @@ chatSchema.statics = {
           firstMessageContent: chat.messages[0].content,
           firstMessageTimestamp: chat.messages[0].timestamp,
           category: chat.category,
+          updatedAt: chat.updatedAt
         };
       }
       return {
         chatId: chat._id,
         firstMessageContent: chat.messages[0].content,
         firstMessageTimestamp: chat.messages[0].timestamp,
+        updatedAt: chat.updatedAt
       };
     });
 
