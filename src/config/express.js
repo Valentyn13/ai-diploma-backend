@@ -12,6 +12,7 @@ const strategies = require('./passport');
 const logger = require('../config/logger');
 const error = require('../api/middlewares/error');
 const Sentry = require('@sentry/node');
+const path = require('path');
 
 /**
  * Express instance
@@ -38,6 +39,8 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
+
+app.use('/.well-known', express.static(path.join(__dirname, '../../public/.well-known')));
 
 // enable authentication
 app.use(passport.initialize());
