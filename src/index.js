@@ -6,12 +6,28 @@ var cron = require('node-cron');
 const mongoose = require('./config/mongoose');
 const cronfun = require('./api/utils/cronJobs');
 const {sendBatchMessagesCronJob, retrieveAndProcessAllDataCronJob} = require('./api/utils/sharedCategory/cron.js');
+const fs = require('fs');
+const path = require('path');
+const https = require('https');
+const http = require('http');
 
-// open mongoose connection
 mongoose.connect();
 
-// listen to requests
-app.listen(port, () => {
+const keyPath = path.resolve(__dirname, '../server.key');
+const certPath = path.resolve(__dirname, '../server.cert');
+
+const checkSSLFiles = () => {
+  return fs.existsSync(keyPath) && fs.existsSync(certPath);
+};
+
+const sslOptions = checkSSLFiles()
+  ? {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath),
+    }
+  : null;
+
+http.createServer(app).listen(port, () => {
   if (process.env.NODE_ENV === 'production') {
     logger.info('starting cron jobs in production');
     cron.schedule('0 */24 * * *', () => {
@@ -50,9 +66,11 @@ app.listen(port, () => {
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
 
-// task.start();
-/**
- * Exports express
- * @public
- */
-module.exports = app;
+// If SSL files are found, create HTTPS server
+if (checkSSLFiles()) {
+  https.createServer(sslOptions, app).listen(8443, () => {
+    logger.info('HTTPS server running on port 8443');
+  });
+} else {
+  logger.warn('SSL certificate or key not found. Skipping HTTPS server start.');
+}
