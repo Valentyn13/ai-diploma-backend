@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "S9HK4NHPYR.com.regapp",
+        "paths": [ "/d*", "/d/*" ]
+      }
+    ]
+  }
+}
