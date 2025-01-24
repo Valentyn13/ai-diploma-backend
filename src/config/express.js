@@ -40,7 +40,16 @@ app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
-app.use('/.well-known', express.static(path.join(__dirname, '../../public/.well-known')));
+app.use(
+  '/.well-known',
+  (req, res, next) => {
+    if (req.url === '/apple-app-site-association') {
+      res.setHeader('Content-Type', 'application/json');
+    }
+    next();
+  },
+  express.static(path.join(__dirname, '../../public/.well-known')),
+);
 
 // enable authentication
 app.use(passport.initialize());
