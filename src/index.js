@@ -7,14 +7,13 @@ const mongoose = require('./config/mongoose');
 const cronfun = require('./api/utils/cronJobs');
 const {sendBatchMessagesCronJob, retrieveAndProcessAllDataCronJob} = require('./api/utils/sharedCategory/cron.js');
 const fs = require('fs');
-const path = require('path');
 const https = require('https');
 const http = require('http');
 
 mongoose.connect();
 
-const keyPath = path.resolve(__dirname, '../server.key');
-const certPath = path.resolve(__dirname, '../server.cert');
+const keyPath = '/etc/letsencrypt/live/app.rega-app.com/privkey.pem';
+const certPath = '/etc/letsencrypt/live/app.rega-app.com/fullchain.pem';
 
 const checkSSLFiles = () => {
   return fs.existsSync(keyPath) && fs.existsSync(certPath);
