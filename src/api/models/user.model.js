@@ -7,6 +7,7 @@ const jwt = require('jwt-simple');
 const uuidv4 = require('uuid/v4');
 const APIError = require('../utils/APIError');
 const {env, jwtSecret, jwtExpirationInterval} = require('../../config/vars');
+const { DUPLICATE_EMAIL } = require('../../constants/errorMessages');
 
 /**
  * User Roles
@@ -266,7 +267,7 @@ userSchema.statics = {
           {
             field: 'email',
             location: 'body',
-            messages: ['"email" already exists'],
+            messages: [DUPLICATE_EMAIL],
           },
         ],
         status: httpStatus.CONFLICT,
