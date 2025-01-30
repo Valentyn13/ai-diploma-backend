@@ -1,4 +1,5 @@
 const express = require('express');
+const appRouter = require('./app.route');
 const userRoutes = require('./user.route');
 const authRoutes = require('./auth.route');
 const adminRoutes = require('./admin.route');
@@ -27,6 +28,7 @@ router.get('/auth-status', authorize(LOGGED_USER_NO_ID), (req, res) => {
  */
 router.use('/docs', express.static('docs'));
 
+router.use('/app', appRouter);
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 router.use('/admin', adminRoutes);
