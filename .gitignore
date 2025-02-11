@@ -64,3 +64,4 @@ RegaDev.pem
 regadevserver.pem
 
 src/firebase/google-service-account.json
+src/firebase/*.json
