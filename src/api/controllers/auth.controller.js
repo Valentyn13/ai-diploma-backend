@@ -7,32 +7,7 @@ const moment = require('moment-timezone');
 const {jwtExpirationInterval} = require('../../config/vars');
 const APIError = require('../utils/APIError');
 const emailProvider = require('../services/emails/emailProvider');
-const axios = require('axios');
 const logger = require('../../config/logger');
-
-async function addToMailChimp(email) {
-  if (process.env.NODE_ENV !== 'production' || !email) {
-    return;
-  }
-
-  try {
-    await axios.post(
-      `https://us18.api.mailchimp.com/3.0/lists/${process.env.MAILCHIMP_LIST_ID}/members`,
-      {
-        email_address: email,
-        status: 'subscribed',
-      },
-      {
-        headers: {
-          Authorization: `apikey ${process.env.MAILCHIMP_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-  } catch (e) {
-    logger.error(`Failed to add email to Mailchimp: ${e.toString()}`);
-  }
-}
 
 /**
  * Returns a formated object with tokens
@@ -94,10 +69,6 @@ exports.register = async (req, res, next) => {
 
     await updateFcm(fcmToken, user._id);
 
-    const url = 'https://webhooks.integrately.com/a/webhooks/98862ee6ca0640ddb993e7825a54e0d8';
-    await axios.post(url, userTransformed);
-    await addToMailChimp(email);
-
     res.status(httpStatus.CREATED);
     return res.json({token, user: userTransformed});
   } catch (error) {
@@ -144,7 +115,7 @@ exports.oAuth = async (req, res, next) => {
     const token = generateTokenResponse(user, accessToken);
 
     const userTransformed = user.transform();
-    await addToMailChimp(email);
+
     return res.json({token, user: userTransformed});
   } catch (error) {
     return next(error);

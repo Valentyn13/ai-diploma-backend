@@ -1,13 +1,7 @@
 const User = require('../models/user.model');
-var admin = require('firebase-admin');
 const cron = require('node-schedule');
-var serviceAccount = require('../../firebase/google-service-account.json');
 const Notification = require('../models/notification.model');
 const logger = require('../../config/logger');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
 
 const sendPushNotificationAfterOneDay = async () => {
   try {

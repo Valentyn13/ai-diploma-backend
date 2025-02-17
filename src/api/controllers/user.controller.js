@@ -4,7 +4,6 @@ const User = require('../models/user.model');
 const Notification = require('../models/notification.model');
 const FcmToken = require('../models/fcmToken.model');
 var admin = require('firebase-admin');
-var serviceAccount = require('../../firebase/old_rega-191cd-firebase-adminsdk-tzvcp-4385138999.json');
 const emailProvider = require('../services/emails/emailProvider');
 const APIError = require('../utils/APIError');
 const cron = require('node-schedule');
@@ -227,9 +226,6 @@ exports.sendCancelSubscriptionEmail = async (req, res, next) => {
 
 exports.saveNotification = async (req, res, next) => {
   try {
-    // admin.initializeApp({
-    //   credential: admin.credential.cert(serviceAccount),
-    // });
     const {user} = req.locals;
     const {data} = req.body;
     let hour = new Date(data).getHours();

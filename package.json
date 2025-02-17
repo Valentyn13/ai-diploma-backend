@@ -1,8 +1,8 @@
 {
-  "name": "regapp-server",
+  "name": "AI_APP",
   "version": "0.0.1",
-  "description": "Rega Application Server",
-  "author": "Tamir Lahav <tamirla@gmail.com>",
+  "description": "Diploma project",
+  "author": "Valetyn Pervieiev",
   "main": "src/index.js",
   "private": true,
   "engines": {
@@ -11,8 +11,6 @@
   },
   "scripts": {
     "prestart": "yarn docs",
-    "start": "cross-env NODE_ENV=production pm2 start ./src/index.js --name regaApp",
-    "restart": "pm2 restart regaApp",
     "dev": "nodemon ./src/index.js",
     "lint": "eslint ./src/ --ignore-path .gitignore --ignore-pattern internals/scripts",
     "lint:fix": "yarn lint --fix",
@@ -25,7 +23,6 @@
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "validate": "yarn lint && yarn test",
     "postpublish": "git push --tags",
-    "deploy": "sh ./deploy.sh",
     "docs": "apidoc -i src -o docs",
     "postdocs": "open-cli docs/index.html",
     "docker:start": "cross-env NODE_ENV=production pm2-docker start ./src/index.js",
