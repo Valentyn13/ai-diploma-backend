@@ -1,7 +1,5 @@
 const logger = require('../../config/logger');
 const Instructor_tractionData = require('../models/instructor_tractionData');
-const User = require('../models/user.model');
-const {castToMongoID} = require('../utils/index');
 
 exports.saveInstructor_tractionData = async (req, res, next) => {
   try {
