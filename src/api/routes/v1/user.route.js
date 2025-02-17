@@ -187,7 +187,6 @@ router.route('/progress/:userId').post(authorize(LOGGED_USER), controller.syncUs
 
 router.route('/updateProfile/:userId').post(authorize(LOGGED_USER), controller.updateProfile);
 router.route('/changePassword/:userId').post(authorize(LOGGED_USER), controller.changePassword);
-router.route('/saveNotification/:userId').post(authorize(LOGGED_USER), controller.saveNotification);
 router.route('/cancelNotification/:userId').post(authorize(LOGGED_USER), controller.cancelNotification);
 
 module.exports = router;

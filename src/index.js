@@ -6,8 +6,6 @@ var cron = require('node-cron');
 const mongoose = require('./config/mongoose');
 const cronfun = require('./api/utils/cronJobs');
 const {sendBatchMessagesCronJob, retrieveAndProcessAllDataCronJob} = require('./api/utils/sharedCategory/cron.js');
-const fs = require('fs');
-const https = require('https');
 const http = require('http');
 
 mongoose.connect();
@@ -15,10 +13,6 @@ mongoose.connect();
 http.createServer(app).listen(port, () => {
   if (process.env.NODE_ENV === 'production') {
     logger.info('starting cron jobs in production');
-    cron.schedule('0 */24 * * *', () => {
-      cronfun.sendPushNotificationAfterOneDay();
-    });
-    cronfun.initializeNotification();
 
     // Run checks every 30 minutes
     cron.schedule('*/30 * * * *', () => {
@@ -43,9 +37,6 @@ http.createServer(app).listen(port, () => {
   }
   cron.schedule('0 * * * *', () => {
     cronfun.calculateMeditationChallenge();
-  });
-  cron.schedule('*/10 * * * *', () => {
-    cronfun.sendManualhNotification();
   });
 
   logger.info(`server started on port ${port} (${env} ${process.pid})`);

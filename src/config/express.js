@@ -1,7 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const compress = require('compression');
 const methodOverride = require('method-override');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -12,7 +11,6 @@ const strategies = require('./passport');
 const logger = require('../config/logger');
 const error = require('../api/middlewares/error');
 const Sentry = require('@sentry/node');
-const path = require('path');
 
 /**
  * Express instance
@@ -27,9 +25,6 @@ app.use(morgan(logs, {stream: logger.stream}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-// gzip compression
-// app.use(compress());
-
 // lets you use HTTP verbs such as PUT or DELETE
 // in places where the client doesn't support it
 app.use(methodOverride());
@@ -40,23 +35,9 @@ app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
-app.use(
-  '/.well-known',
-  (req, res, next) => {
-    if (req.url === '/apple-app-site-association') {
-      res.setHeader('Content-Type', 'application/json');
-    }
-    next();
-  },
-  express.static(path.join(__dirname, '../../public/.well-known')),
-);
-
 // enable authentication
 app.use(passport.initialize());
 passport.use('jwt', strategies.jwt);
-passport.use('facebook', strategies.facebook);
-passport.use('google', strategies.google);
-passport.use('apple', strategies.apple);
 
 // mount api v1 routes
 app.use('/v1', routes);

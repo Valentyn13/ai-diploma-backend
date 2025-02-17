@@ -6,7 +6,6 @@ const Instructor = require('../models/instructor.model');
 const User = require('../models/user.model');
 const FcmToken = require('../models/fcmToken.model');
 const logger = require('../../config/logger');
-var admin = require('firebase-admin');
 
 exports.initSchema = async (req, res, next) => {
   try {
@@ -24,15 +23,6 @@ exports.initSchema = async (req, res, next) => {
       res.json({status: 'all collections deleted'});
       return;
     }
-
-    // const notification = new Notification();
-    // notification.type = 'custom';
-    // notification.title = 'welcome';
-    // notification.body = 'welcome to Rega app ';
-    // notification.imageUrl = "https://cdn4.iconfinder.com/data/icons/logos-brands-5/24/react-128.png'";
-    // const savenoti = await notification.save();
-    // createdModels.notifications = [savenoti];
-    // Instructors
 
     const instructor = new Instructor();
     instructor.name = 'דנה מאיר';

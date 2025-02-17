@@ -1,9 +1,6 @@
 const httpStatus = require('http-status');
 const {omit} = require('lodash');
 const User = require('../models/user.model');
-const Notification = require('../models/notification.model');
-const FcmToken = require('../models/fcmToken.model');
-var admin = require('firebase-admin');
 const APIError = require('../utils/APIError');
 const cron = require('node-schedule');
 const bcrypt = require('bcryptjs');
@@ -187,61 +184,6 @@ exports.changePassword = async (req, res, next) => {
   } catch (error) {
     logger.error(`changePassword failed: ${error.toString()}`);
     return next(error);
-  }
-};
-
-exports.saveNotification = async (req, res, next) => {
-  try {
-    const {user} = req.locals;
-    const {data} = req.body;
-    let hour = new Date(data).getHours();
-    let mints = new Date(data).getMinutes();
-
-    const findandUpdate = await User.findOneAndUpdate({_id: user._id}, {notificationTime: data, isNotification: true});
-    const userId = user._id.toString();
-
-    cron.scheduledJobs[userId] && cron.scheduledJobs[userId].cancel();
-
-    const jobSchedule = `0 ${mints} ${hour} * * *`;
-
-    logger.info(`schedueling job for user ${user._id} at ${jobSchedule}`);
-
-    // schedule cron job for specific user
-    cron.scheduleJob(userId, jobSchedule, async () => {
-      const {body, title, imageUrl} = await Notification.findOne({type: 'custom'});
-      const fetchedTokens = await FcmToken.find({userId: user._id});
-      const fcms = fetchedTokens.map(({fcm}) => fcm).filter((fcm) => typeof fcm === 'string');
-
-      await Promise.all[
-        fcms.map((token) =>
-          admin
-            .messaging()
-            .send({
-              token,
-              notification: {body, title},
-              android: {
-                notification: {
-                  body,
-                  title,
-                  color: '#fff566',
-                  priority: 'high',
-                  sound: 'default',
-                  vibrateTimingsMillis: [200, 500, 800],
-                  imageUrl: imageUrl,
-                },
-              },
-            })
-            .then((msg) => {
-              logger.info(`message sent to ${token}`);
-            })
-            .catch((err) => {
-              logger.error(`failed to send message to ${token}: ${err.toString()}`);
-            }),
-        )
-      ];
-    });
-  } catch (error) {
-    logger.error(`saveNotification failed: ${error.toString()}`);
   }
 };
 
