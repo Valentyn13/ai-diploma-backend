@@ -181,12 +181,7 @@ router
    */
   .delete(authorize(LOGGED_USER), controller.remove);
 
-router.route('/preferences/:userId').post(authorize(LOGGED_USER), controller.syncUserPreferences);
-
-router.route('/progress/:userId').post(authorize(LOGGED_USER), controller.syncUserProgress);
-
 router.route('/updateProfile/:userId').post(authorize(LOGGED_USER), controller.updateProfile);
 router.route('/changePassword/:userId').post(authorize(LOGGED_USER), controller.changePassword);
-router.route('/cancelNotification/:userId').post(authorize(LOGGED_USER), controller.cancelNotification);
 
 module.exports = router;

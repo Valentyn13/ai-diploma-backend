@@ -1,17 +1,9 @@
 const express = require('express');
-const appRouter = require('./app.route');
 const userRoutes = require('./user.route');
 const authRoutes = require('./auth.route');
-const adminRoutes = require('./admin.route');
-const meditationRoutes = require('./meditation.route');
-const categoryRoutes = require('./category.route');
-const courseRoutes = require('./course.route');
-const instructorRoutes = require('./instructor.route');
-const instructor_tractionData = require('./instructor_tractionData.route.js');
-const articleRoutes = require('./article.route');
+
 const chatsRoutes = require('./chats.route');
 const insightRoutes = require('./userInsight.route');
-const challengeRoutes = require('./meditationChallenge.route.js');
 const {authorize, LOGGED_USER_NO_ID} = require('../../middlewares/auth.js');
 const router = express.Router();
 
@@ -27,18 +19,9 @@ router.get('/auth-status', authorize(LOGGED_USER_NO_ID), (req, res) => {
  */
 router.use('/docs', express.static('docs'));
 
-router.use('/app', appRouter);
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
-router.use('/admin', adminRoutes);
-router.use('/meditations', meditationRoutes);
-router.use('/categories', categoryRoutes);
-router.use('/courses', courseRoutes);
-router.use('/instructors', instructorRoutes);
-router.use('/instructor_tractionData', instructor_tractionData);
-router.use('/articles', articleRoutes);
 router.use('/chats', chatsRoutes);
 router.use('/user-insights', insightRoutes);
-router.use('/challenge', challengeRoutes);
 
 module.exports = router;

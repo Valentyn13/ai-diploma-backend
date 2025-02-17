@@ -2,10 +2,8 @@ const httpStatus = require('http-status');
 const User = require('../models/user.model');
 const FcmToken = require('../models/fcmToken.model');
 const RefreshToken = require('../models/refreshToken.model');
-const PasswordResetToken = require('../models/passwordResetToken.model');
 const moment = require('moment-timezone');
 const {jwtExpirationInterval} = require('../../config/vars');
-const APIError = require('../utils/APIError');
 const logger = require('../../config/logger');
 
 /**

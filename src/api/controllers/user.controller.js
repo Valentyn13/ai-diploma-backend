@@ -110,34 +110,6 @@ exports.remove = (req, res, next) => {
     .catch((e) => next(e));
 };
 
-exports.syncUserPreferences = (req, res, next) => {
-  const userPreferences = req.body;
-  const {user} = req.locals;
-  user.userPreferences = userPreferences;
-  user
-    .save()
-    .then((savedUser) => res.json(savedUser.transform()))
-    .catch((e) => next(e));
-};
-
-exports.syncUserProgress = async (req, res, next) => {
-  const userProgress = req.body;
-
-  if (userProgress.minutesPracticed > 0) {
-    const {user} = req.locals;
-    user.userProgress = userProgress;
-    user
-      .save()
-      .then((savedUser) => {
-        res.json(savedUser.transform());
-      })
-      .catch((e) => next(e));
-  } else {
-    return res.json(user);
-  }
-};
-
-
 exports.updateProfile = async (req, res, next) => {
   const {user} = req.locals;
   const response = await User.findOneAndUpdate({_id: user._id}, req.body.data, {
@@ -184,15 +156,5 @@ exports.changePassword = async (req, res, next) => {
   } catch (error) {
     logger.error(`changePassword failed: ${error.toString()}`);
     return next(error);
-  }
-};
-
-exports.cancelNotification = async (req, res, next) => {
-  try {
-    const {user} = req.locals;
-
-    await User.findOneAndUpdate({_id: user._id}, {isNotification: false});
-  } catch (error) {
-    logger.error(`cancelNotification failed: ${error.toString()}`);
   }
 };
