@@ -12,20 +12,6 @@ const http = require('http');
 
 mongoose.connect();
 
-const keyPath = '/etc/letsencrypt/live/app.rega-app.com/privkey.pem';
-const certPath = '/etc/letsencrypt/live/app.rega-app.com/fullchain.pem';
-
-const checkSSLFiles = () => {
-  return fs.existsSync(keyPath) && fs.existsSync(certPath);
-};
-
-const sslOptions = checkSSLFiles()
-  ? {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath),
-    }
-  : null;
-
 http.createServer(app).listen(port, () => {
   if (process.env.NODE_ENV === 'production') {
     logger.info('starting cron jobs in production');
@@ -64,12 +50,3 @@ http.createServer(app).listen(port, () => {
 
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
-
-// If SSL files are found, create HTTPS server
-if (checkSSLFiles()) {
-  https.createServer(sslOptions, app).listen(8443, () => {
-    logger.info('HTTPS server running on port 8443');
-  });
-} else {
-  logger.warn('SSL certificate or key not found. Skipping HTTPS server start.');
-}

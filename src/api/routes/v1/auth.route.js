@@ -5,8 +5,6 @@ const {
   login,
   register,
   refresh,
-  sendPasswordReset,
-  passwordReset,
 } = require('../../validations/auth.validation');
 
 const router = express.Router();
@@ -89,10 +87,5 @@ router.route('/login').post(validate(login), controller.login);
  * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
  */
 router.route('/refresh-token').post(validate(refresh), controller.refresh);
-
-router.route('/send-password-reset').post(validate(sendPasswordReset), controller.sendPasswordReset);
-
-router.route('/reset-password').post(validate(passwordReset), controller.resetPassword);
-
 
 module.exports = router;

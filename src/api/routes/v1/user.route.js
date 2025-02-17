@@ -185,10 +185,8 @@ router.route('/preferences/:userId').post(authorize(LOGGED_USER), controller.syn
 
 router.route('/progress/:userId').post(authorize(LOGGED_USER), controller.syncUserProgress);
 
-router.route('/deleteUserData/:userId').get(authorize(LOGGED_USER), controller.deleteUserData);
 router.route('/updateProfile/:userId').post(authorize(LOGGED_USER), controller.updateProfile);
 router.route('/changePassword/:userId').post(authorize(LOGGED_USER), controller.changePassword);
-router.route('/cancelSubsciption/:userId').post(authorize(LOGGED_USER), controller.sendCancelSubscriptionEmail);
 router.route('/saveNotification/:userId').post(authorize(LOGGED_USER), controller.saveNotification);
 router.route('/cancelNotification/:userId').post(authorize(LOGGED_USER), controller.cancelNotification);
 

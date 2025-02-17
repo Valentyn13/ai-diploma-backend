@@ -4,7 +4,6 @@ const User = require('../models/user.model');
 const Notification = require('../models/notification.model');
 const FcmToken = require('../models/fcmToken.model');
 var admin = require('firebase-admin');
-const emailProvider = require('../services/emails/emailProvider');
 const APIError = require('../utils/APIError');
 const cron = require('node-schedule');
 const bcrypt = require('bcryptjs');
@@ -141,23 +140,6 @@ exports.syncUserProgress = async (req, res, next) => {
   }
 };
 
-exports.deleteUserData = async (req, res, next) => {
-  try {
-    const {user} = req.locals;
-    if (user) {
-      await emailProvider.deleteUserData(user);
-      res.status(httpStatus.OK);
-      return res.json('success');
-    }
-    throw new APIError({
-      status: httpStatus.UNAUTHORIZED,
-      message: 'No account found with that email',
-    });
-  } catch (error) {
-    logger.error(`deleteUserData failed ${error.toString()}`);
-    return next(error);
-  }
-};
 
 exports.updateProfile = async (req, res, next) => {
   const {user} = req.locals;
@@ -204,22 +186,6 @@ exports.changePassword = async (req, res, next) => {
     });
   } catch (error) {
     logger.error(`changePassword failed: ${error.toString()}`);
-    return next(error);
-  }
-};
-
-exports.sendCancelSubscriptionEmail = async (req, res, next) => {
-  try {
-    const {user} = req.locals;
-    if (user) {
-      await emailProvider.cancelSubscription(user, req.body.data.reason);
-      res.status(httpStatus.OK);
-      return res.json('success');
-    }
-  } catch (error) {
-    // console.log('<<<<<<<error>>>>>>>', error);
-    // res.status(httpStatus.BAD_GATEWAY);
-    logger.error(`failed to send sendCancelSubscriptionEmail: ${error.toString()}`);
     return next(error);
   }
 };
