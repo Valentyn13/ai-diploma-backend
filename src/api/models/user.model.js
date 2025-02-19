@@ -277,37 +277,6 @@ userSchema.statics = {
     }
     return error;
   },
-
-  async oAuthLogin({service, id, email, name, picture, sex, categories}) {
-    const user = await this.findOne({
-      $or: [{[`services.${service}`]: id}, {email}],
-    });
-    if (user) {
-      user.services[service] = id;
-      if (!user.name) user.name = name;
-      if (!user.picture) user.picture = picture;
-      if (!user.sex) user.sex = sex;
-      if (!user.userPreferences) {
-        user.userPreferences = {
-          selectedCategories: categories,
-        };
-      }
-      return user.save();
-    }
-    const password = uuidv4();
-    return this.create({
-      services: {[service]: id},
-      email,
-      password,
-      name,
-      picture,
-      sex,
-      userPreferences: {
-        selectedCategories: categories,
-      },
-      userProgress: {},
-    });
-  },
 };
 
 /**

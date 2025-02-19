@@ -2,7 +2,6 @@ const httpStatus = require('http-status');
 const {omit} = require('lodash');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError');
-const cron = require('node-schedule');
 const bcrypt = require('bcryptjs');
 const {env} = require('../../config/vars');
 const logger = require('../../config/logger');

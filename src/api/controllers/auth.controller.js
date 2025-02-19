@@ -46,8 +46,7 @@ async function updateFcm(fcmToken, userId) {
  */
 exports.register = async (req, res, next) => {
   try {
-    const {email, password, name, picture, sex, categories, fcmToken} = req.body;
-    logger.info(`register with fcmToken ${fcmToken}`);
+    const {email, password, name, picture, sex, categories} = req.body;
     const userData = {
       email,
       password,
@@ -64,7 +63,6 @@ exports.register = async (req, res, next) => {
 
     const token = generateTokenResponse(user, user.token());
 
-    await updateFcm(fcmToken, user._id);
 
     res.status(httpStatus.CREATED);
     return res.json({token, user: userTransformed});
@@ -79,14 +77,9 @@ exports.register = async (req, res, next) => {
  */
 exports.login = async (req, res, next) => {
   try {
-    const {fcmToken} = req.body;
-    logger.info(`login with fcmToken ${fcmToken}`);
-
     const {user, accessToken} = await User.findAndGenerateToken(req.body);
 
     const token = generateTokenResponse(user, accessToken);
-
-    await updateFcm(fcmToken, user._id);
 
     const userTransformed = user.transform();
     return res.json({token, user: userTransformed});
