@@ -3,38 +3,15 @@ const httpStatus = require('http-status');
 
 const User = require('./user.model');
 const APIError = require('../utils/APIError');
-const {createApiCall} = require('../../config/llm/api');
-const {generateMessageForHistory} = require('../../config/llm/helpers');
-const {CHAT_CATEGORIES} = require('../../constants/chatCategories');
 const messageSchema = require('./message.schema');
 
-const chatSchema = new mongoose.Schema(
+const documentChatSchema = new mongoose.Schema(
   {
     _id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
     userId: {type: String, required: true},
-    sessionId: {
-      type: String,
-      required: true,
-    },
-    summary: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Summary',
-    },
-    lastCachedMessageIndex: {
-      type: Number,
-      default: 0,
-    },
-    startCacheMessageIndex: {
-      type: Number,
-      default: 0,
-    },
-    category: {
-      type: String,
-      enum: CHAT_CATEGORIES,
-    },
     messages: {
       type: [messageSchema],
     },
@@ -45,33 +22,14 @@ const chatSchema = new mongoose.Schema(
   },
 );
 
-chatSchema.statics = {
+documentChatSchema.statics = {
   async createChat(input, userId) {
     const objectId = new mongoose.Types.ObjectId();
     const stringIdRepresentation = objectId.toString();
 
     const user = await User.get(userId);
 
-    const userData = {
-      name: user.name,
-      gender: user.sex,
-    };
 
-    const modelResponse = await createApiCall(userData, [], 0, 0, input);
-
-    const aiMessage = modelResponse.aiMessage;
-
-    const aiMessageForHistory = generateMessageForHistory('assistant', aiMessage);
-    const userMessageForHistory = generateMessageForHistory('user', input);
-
-    const chat = await this.create({
-      _id: objectId,
-      sessionId: stringIdRepresentation,
-      messages: [userMessageForHistory, aiMessageForHistory],
-      userId,
-    });
-
-    return chat;
   },
 
   async deleteChat(sessionId) {
@@ -86,7 +44,7 @@ chatSchema.statics = {
     return chat;
   },
 
-  async getUserChats(userId) {
+  async getUserDocumentChats(userId) {
     const user = await User.findById(userId);
     if (!user) {
       throw new APIError({
@@ -118,7 +76,7 @@ chatSchema.statics = {
     return normalizedChatsData;
   },
 
-  async getChatById(sessionId) {
+  async getDocumentChatById(sessionId) {
     const chat = await this.findById(sessionId);
     if (!chat) {
       throw new APIError({
@@ -131,4 +89,4 @@ chatSchema.statics = {
   },
 };
 
-module.exports = mongoose.model('Chat', chatSchema);
+module.exports = mongoose.model('DocumentChat', documentChatSchema);

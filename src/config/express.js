@@ -22,8 +22,8 @@ const app = express();
 app.use(morgan(logs, {stream: logger.stream}));
 
 // parse body params and attache them to req.body
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 // lets you use HTTP verbs such as PUT or DELETE
 // in places where the client doesn't support it

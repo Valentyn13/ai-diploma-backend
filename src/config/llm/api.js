@@ -1,9 +1,10 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-case-declarations */
+const fs = require('fs');
+const path = require('path');
 const {sdkAnthropicModel} = require('./models');
 const {SUMMARIZE_PROMPT, TRANSCRIPT_PROMPT, PROMPT_LIMITATION_PROMPT} = require('./prompts');
 const {convertHistorySdkMessage, generateSystemPrompt, convertHistoryMessagesToText} = require('./helpers');
-
 const UserInsight = require('../../api/models/userInsight.model');
 const SharedCategoryBatch = require('../../api/models/sharedCategoryBatches');
 
@@ -245,7 +246,41 @@ const checkAndRetrieveBatchData = async (batches) => {
   }
 };
 
+const pdfFileProcessing = async () => {
+
+  const file = fs.readFileSync(path.join(__dirname, 'cv2.pdf'));
+  const pdfBase64 = Buffer.from(file).toString('base64');
+
+  const response = await sdkAnthropicModel.messages.create({
+    model: process.env.CHEAPEST_ANTHROPIC_MODEL,
+    max_tokens: 1024,
+    messages: [
+      {
+        content: [
+          {
+            type: 'document',
+            source: {
+              media_type: 'application/pdf',
+              type: 'base64',
+              data: pdfBase64,
+            },
+          },
+          {
+            type: 'text',
+            text: 'Describe shortly the content of the document',
+          },
+        ],
+        role: 'user',
+      },
+    ],
+  });
+  console.log(response);
+
+  return response;
+};
+
 module.exports = {
+  pdfFileProcessing,
   createSdkApiCall,
   createSummarization,
   createSdkBatch,
