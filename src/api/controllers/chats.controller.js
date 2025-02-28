@@ -61,21 +61,6 @@ exports.loadAll = async (req, res, next) => {
   }
 };
 
-exports.create = async (req, res, next) => {
-  const input = req.body.input;
-  const userId = req.query.userId;
-  try {
-    validateObjectId(userId);
-    validateChatInput(input);
-
-    const chat = await Chats.createChat(input, userId);
-    await User.findByIdAndUpdate(userId, {lastActiveSessionId: chat._id}).select('lastActiveSessionId');
-    return res.status(200).json(chat);
-  } catch (error) {
-    next(error);
-  }
-};
-
 exports.createStreamingChat = async (req, res, next) => {
   const input = req.body.input;
   const userId = req.query.userId;
@@ -116,69 +101,6 @@ exports.createStreamingChat = async (req, res, next) => {
     await User.findByIdAndUpdate(userId, {lastActiveSessionId: chat._id}).select('lastActiveSessionId');
 
     return res.status(200).json(chat);
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.sendMessageToAi = async (req, res, next) => {
-  const sessionId = req.params.sessionId;
-  const input = req.body.input;
-  const chatType = req.query.chatType;
-
-  try {
-    validateObjectId(sessionId);
-    validateChatInput(input);
-
-    const chat = await Chats.getChatById(sessionId);
-
-    const user = await User.get(chat.userId);
-
-    if (user.lastActiveSessionId?.toString() !== sessionId.toString()) {
-      const lastId = await User.findByIdAndUpdate(user._id, {lastActiveSessionId: sessionId}).select(
-        'lastActiveSessionId',
-      );
-      console.log('LAST ID From add message: ', lastId);
-    }
-
-    const userData = {
-      name: user.name,
-      gender: user.sex,
-    };
-
-    const isLastCachedIndexExist = !!chat.lastCachedMessageIndex;
-    let lastCachedMessageIndex = isLastCachedIndexExist ? chat.lastCachedMessageIndex : 0;
-
-    const isStartCacheMessageIndex = !!chat.startCacheMessageIndex;
-    let startCacheMessageIndex = isStartCacheMessageIndex ? chat.startCacheMessageIndex : 0;
-
-    const modelResponse = await createApiCall(
-      userData,
-      chat.messages,
-      lastCachedMessageIndex,
-      startCacheMessageIndex,
-      input,
-      chatType,
-    );
-
-    const aiMessage = modelResponse.aiMessage;
-    const newLastCachedIndex = modelResponse.newLastCachedIndex;
-    const newStartCacheIndex = modelResponse.newStartCacheIndex;
-
-    const aiMessageForHistory = generateMessageForHistory('assistant', aiMessage);
-    const userMessageForHistory = generateMessageForHistory('user', input);
-
-    await Chats.findByIdAndUpdate(sessionId, {
-      $push: {
-        messages: {
-          $each: [userMessageForHistory, aiMessageForHistory],
-        },
-      },
-      startCacheMessageIndex: newStartCacheIndex,
-      lastCachedMessageIndex: newLastCachedIndex,
-    });
-
-    return res.status(200).json(aiMessageForHistory);
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,3 @@
-const {HumanMessage, AIMessage} = require('@langchain/core/messages');
 const {INSTRUCTION, BASIC_SYSPROMPT_MESSAGE, PROMPTS} = require('./prompts');
 
 const generateUserInstruction = (name, gender) => {
@@ -34,13 +33,6 @@ const convertHistoryMessagesToText = (historyMessages) => {
   return str;
 };
 
-const convertHistoryMessagesToAiStyle = (historyMessages) => {
-  return historyMessages.map((message) => {
-    return message.role === 'user'
-      ? new HumanMessage({content: message.content})
-      : new AIMessage({content: message.content});
-  });
-};
 
 const convertHistorySdkMessage = (historyMessages) => {
   return historyMessages.map((message) => {
@@ -54,6 +46,5 @@ module.exports = {
   generateSystemPrompt,
   generateMessageForHistory,
   convertHistoryMessagesToText,
-  convertHistoryMessagesToAiStyle,
   convertHistorySdkMessage,
 };

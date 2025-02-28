@@ -1,99 +1,11 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-case-declarations */
-const {HumanMessage, SystemMessage} = require('@langchain/core/messages');
-const {sdkAnthropicModel, langchainAnthropicModel} = require('./models');
+const {sdkAnthropicModel} = require('./models');
 const {SUMMARIZE_PROMPT, TRANSCRIPT_PROMPT, PROMPT_LIMITATION_PROMPT} = require('./prompts');
-const {
-  convertHistorySdkMessage,
-  convertHistoryMessagesToAiStyle,
-  generateSystemPrompt,
-  convertHistoryMessagesToText,
-} = require('./helpers');
+const {convertHistorySdkMessage, generateSystemPrompt, convertHistoryMessagesToText} = require('./helpers');
 
 const UserInsight = require('../../api/models/userInsight.model');
 const SharedCategoryBatch = require('../../api/models/sharedCategoryBatches');
-
-const createApiCall = async (
-  userData,
-  historyMessages,
-  lastCachedMessageIndex,
-  startCacheMessageIndex,
-  input,
-  chatType,
-) => {
-  let newLastCachedIndex = lastCachedMessageIndex;
-  let newStartCacheIndex = startCacheMessageIndex;
-
-  const sysprompt = generateSystemPrompt(userData, chatType);
-
-  const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
-
-  const {cached, uncached} = historyMessages.slice(calculatedIndex).reduce(
-    (acc, curr, i) => {
-      if (lastCachedMessageIndex === 0) {
-        if (curr.role === 'user') {
-          acc.cached.push(curr);
-        }
-        return acc;
-      }
-      if (startCacheMessageIndex === 0) {
-        if (curr.role === 'user') {
-          if (i <= lastCachedMessageIndex) {
-            acc.cached.push(curr);
-          } else {
-            acc.uncached.push(curr);
-          }
-        }
-        return acc;
-      }
-
-      if (startCacheMessageIndex !== 0) {
-        if (curr.role === 'user') {
-          if (i < lastCachedMessageIndex - startCacheMessageIndex) {
-            acc.cached.push(curr);
-          } else {
-            acc.uncached.push(curr);
-          }
-        }
-      }
-
-      return acc;
-    },
-    {
-      cached: [],
-      uncached: [],
-    },
-  );
-
-  const cacheData = convertHistoryMessagesToText(cached);
-
-  const uncachedData = convertHistoryMessagesToAiStyle(uncached);
-
-  const messages = [
-    new SystemMessage({
-      content: [
-        {
-          type: 'text',
-          text: sysprompt + cacheData,
-          cache_control: {type: 'ephemeral'},
-        },
-      ],
-    }),
-    ...uncachedData,
-    new HumanMessage({content: input}),
-  ];
-
-  const response = await langchainAnthropicModel.invoke(messages);
-
-  if (response.response_metadata.usage.cache_creation_input_tokens && lastCachedMessageIndex === 0) {
-    newLastCachedIndex = historyMessages.length - 1;
-  } else if (response.response_metadata.usage.input_tokens > 800 && lastCachedMessageIndex !== 0) {
-    newLastCachedIndex = historyMessages.length - 1;
-    newStartCacheIndex = lastCachedMessageIndex;
-  }
-
-  return {aiMessage: response.content, newLastCachedIndex, newStartCacheIndex};
-};
 
 const createSdkApiCall = async (
   userData,
@@ -152,7 +64,7 @@ const createSdkApiCall = async (
   const uncachedData = convertHistorySdkMessage(uncached);
 
   const stream = await sdkAnthropicModel.beta.promptCaching.messages.stream({
-    model: process.env.ANTHROPIC_MODEL,
+    model: process.env.CHEAPEST_ANTHROPIC_MODEL,
     max_tokens: 2048,
     system: [
       {
@@ -334,7 +246,6 @@ const checkAndRetrieveBatchData = async (batches) => {
 };
 
 module.exports = {
-  createApiCall,
   createSdkApiCall,
   createSummarization,
   createSdkBatch,
