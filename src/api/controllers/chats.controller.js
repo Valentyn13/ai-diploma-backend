@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const validateObjectId = require('../validations/isObjectId');
 const validateChatInput = require('../validations/validateChatInput');
 const {generateMessageForHistory} = require('../../config/llm/helpers');
-const {createSdkApiCall, pdfFileProcessing} = require('../../config/llm/api');
+const {createSdkApiCall} = require('../../config/llm/api');
 const User = require('../models/user.model');
 const Chats = require('../models/chats.model');
 const UserInsight = require('../models/userInsight.model');
@@ -199,19 +199,5 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
   } catch (error) {
     console.log(error)
     next(error);
-  }
-};
-
-exports.processPdfDocument = async (req, res, next) => {
-  try {
-    const {file} = req.body;
-    console.log(file);
-    // const response = await pdfFileProcessing();
-    return res.status(200).json({
-      Done: true,
-    });
-  } catch (error) {
-    next(error);
-    
   }
 };

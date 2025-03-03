@@ -23,9 +23,6 @@ router.route('/create/sse').post(authorize(LOGGED_USER_NO_ID), chatController.cr
 // SEND MESSAGE TO AI IN CHAT
 router.post('/message/sse/:sessionId', authorize(LOGGED_USER_NO_ID), chatController.sendMessageToSdkAiWithStreaming);
 
-// PROCESS PDF DOCUMENT
-router.post('/process/pdf', chatController.processPdfDocument);
-
 // GET LATEST CHAT ID
 // NOTE: needs query param userId
 router.get('/id/latest', chatController.getLatestChatId);

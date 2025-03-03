@@ -1,0 +1,151 @@
+const mongoose = require('mongoose');
+
+const DocumentChats = require('../models/documentChats.model');
+const User = require('../models/user.model');
+
+const {generateMessageForHistory} = require('../../config/llm/helpers');
+const {createSdkApiCall, pdfFileProcessing} = require('../../config/llm/api');
+
+const validateObjectId = require('../validations/isObjectId');
+const validateChatInput = require('../validations/validateChatInput');
+
+exports.processPdfDocument = async (req, res, next) => {
+  try {
+    const {file} = req.body;
+    console.log(file);
+    // const response = await pdfFileProcessing();
+    return res.status(200).json({
+      Done: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.loadById = async (req, res, next) => {
+  const id = req.params.sessionId;
+  try {
+    validateObjectId(id);
+    const chat = await DocumentChats.getChatById(id);
+    return res.status(200).json(chat);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.delete = async (req, res, next) => {
+  const sessionId = req.params.sessionId;
+  try {
+    validateObjectId(sessionId);
+
+    const chat = await DocumentChats.deleteChat(sessionId);
+
+    return res.status(200).json({deleted: true});
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.loadAll = async (req, res, next) => {
+  const id = req.query.userId;
+  try {
+    validateObjectId(id);
+    const chats = await DocumentChats.getUserChats(id);
+    return res.status(200).json(chats);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ===================================
+
+exports.createStreamingChat = async (req, res, next) => {
+  const userId = req.query.userId;
+
+  const input = req.body.input;
+  const document = req.body.document;
+  const chatName = req.body.chatName;
+
+  const objectId = new mongoose.Types.ObjectId();
+
+  try {
+    validateObjectId(userId);
+    validateChatInput(input);
+
+    await User.get(userId);
+
+    const userMessageForHistory = generateMessageForHistory('user', input);
+
+    const chat = await DocumentChats.create({
+      _id: objectId,
+      document,
+      chatName,
+      messages: [userMessageForHistory],
+      userId,
+    });
+
+    return res.status(200).json(chat);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
+  const sessionId = req.params.sessionId;
+  const input = req.body.input;
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  try {
+    validateObjectId(sessionId);
+    validateChatInput(input);
+
+    const chat = await DocumentChats.getChatById(sessionId);
+
+    const user = await User.get(chat.userId);
+
+    const userData = {
+      name: user.name,
+      gender: user.sex,
+    };
+
+    const modelResponse = await createSdkApiCall(userData, chat.messages, input, chatType, res);
+
+    const aiMessage = modelResponse.aiMessage;
+
+    const aiMessageForHistory = generateMessageForHistory('assistant', aiMessage);
+    const userMessageForHistory = generateMessageForHistory('user', input);
+
+    if (chat.messages.length <= 1) {
+      await DocumentChats.findByIdAndUpdate(sessionId, {
+        $push: {
+          messages: {
+            $each: [aiMessageForHistory],
+          },
+        },
+      });
+    } else {
+      await DocumentChats.findByIdAndUpdate(sessionId, {
+        $push: {
+          messages: {
+            $each: [userMessageForHistory, aiMessageForHistory],
+          },
+        },
+      });
+    }
+
+    res.end();
+
+    res.on('close', () => {
+      res.end();
+    });
+
+    return;
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};

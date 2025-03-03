@@ -1,9 +1,11 @@
 const express = require('express');
+
 const userRoutes = require('./user.route');
 const authRoutes = require('./auth.route');
-
 const chatsRoutes = require('./chats.route');
 const insightRoutes = require('./userInsight.route');
+const documentChatsRoutes = require('./documentChats.route');
+
 const {authorize, LOGGED_USER_NO_ID} = require('../../middlewares/auth.js');
 const router = express.Router();
 
@@ -22,6 +24,7 @@ router.use('/docs', express.static('docs'));
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 router.use('/chats', chatsRoutes);
+router.use('/document-chats', documentChatsRoutes);
 router.use('/user-insights', insightRoutes);
 
 module.exports = router;
