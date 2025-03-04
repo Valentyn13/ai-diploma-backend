@@ -50,7 +50,7 @@ exports.loadAll = async (req, res, next) => {
   const id = req.query.userId;
   try {
     validateObjectId(id);
-    const chats = await DocumentChats.getUserChats(id);
+    const chats = await DocumentChats.getUserDocumentChats(id);
     return res.status(200).json(chats);
   } catch (error) {
     next(error);
