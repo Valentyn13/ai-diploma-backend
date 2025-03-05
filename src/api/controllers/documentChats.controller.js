@@ -26,7 +26,7 @@ exports.loadById = async (req, res, next) => {
   const id = req.params.sessionId;
   try {
     validateObjectId(id);
-    const chat = await DocumentChats.getChatById(id);
+    const chat = await DocumentChats.getDocumentChatById(id);
     return res.status(200).json(chat);
   } catch (error) {
     next(error);
@@ -57,8 +57,6 @@ exports.loadAll = async (req, res, next) => {
   }
 };
 
-// ===================================
-
 exports.createStreamingChat = async (req, res, next) => {
   const userId = req.query.userId;
 
@@ -84,7 +82,10 @@ exports.createStreamingChat = async (req, res, next) => {
       userId,
     });
 
-    return res.status(200).json(chat);
+    const chatObj = chat.toObject(); // Convert Mongoose document to plain object
+    delete chatObj.document; // Remove the 'document' field
+
+    return res.status(200).json(chatObj);
   } catch (error) {
     next(error);
   }
@@ -103,7 +104,7 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
     validateObjectId(sessionId);
     validateChatInput(input);
 
-    const chat = await DocumentChats.getChatById(sessionId);
+    const chat = await DocumentChats.getDocumentChatById(sessionId);
 
     const user = await User.get(chat.userId);
 
@@ -112,11 +113,22 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
       gender: user.sex,
     };
 
-    const modelResponse = await createSdkApiCall(userData, chat.messages, input, chatType, res);
+    // Simulate striming
 
-    const aiMessage = modelResponse.aiMessage;
+    const chunks = ['chunk1', 'chunk2', 'chunk3', 'chunk4', 'chunk5'];
 
-    const aiMessageForHistory = generateMessageForHistory('assistant', aiMessage);
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const chunk of chunks) {
+      res.write(chunk);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+
+    // const modelResponse = await createSdkApiCall(userData, chat.messages, input, chatType, res);
+
+    // const aiMessage = modelResponse.aiMessage;
+
+    const aiMessageForHistory = generateMessageForHistory('assistant', chunks.join(''));
     const userMessageForHistory = generateMessageForHistory('user', input);
 
     if (chat.messages.length <= 1) {
