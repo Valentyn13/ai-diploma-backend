@@ -21,6 +21,15 @@ const documentChatSchema = new mongoose.Schema(
     document: {
       type: String,
       required: true,
+    },
+    cachedFilePath: {
+      type: String,
+      required: true,
+    },
+    category:{
+      type: String,
+      enum: ['general', 'medicine', 'engineering'],
+      required: true,
     }
   },
   {

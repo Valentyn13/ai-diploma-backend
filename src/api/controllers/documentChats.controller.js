@@ -63,6 +63,8 @@ exports.createStreamingChat = async (req, res, next) => {
   const input = req.body.input;
   const document = req.body.document;
   const chatName = req.body.chatName;
+  const category = req.body.category;
+  const cachedPath = req.body.cachedPath;
 
   const objectId = new mongoose.Types.ObjectId();
 
@@ -78,6 +80,8 @@ exports.createStreamingChat = async (req, res, next) => {
       _id: objectId,
       document,
       chatName,
+      category,
+      cachedFilePath: cachedPath,
       messages: [userMessageForHistory],
       userId,
     });
@@ -87,6 +91,7 @@ exports.createStreamingChat = async (req, res, next) => {
 
     return res.status(200).json(chatObj);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
