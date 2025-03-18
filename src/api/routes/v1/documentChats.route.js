@@ -1,6 +1,7 @@
 const express = require('express');
 const {authorize, LOGGED_USER_NO_ID} = require('../../middlewares/auth');
 const documentChatController = require('../../controllers/documentChats.controller');
+const { upload } = require('../../../config/multer');
 const router = express.Router();
 
 router
@@ -18,7 +19,7 @@ router.route('/').get(authorize(LOGGED_USER_NO_ID), documentChatController.loadA
 // NOTE: needs query param userId
 // NOTE: needs body input
 
-router.route('/create/sse').post(authorize(LOGGED_USER_NO_ID), documentChatController.createStreamingChat);
+router.route('/create/sse').post(authorize(LOGGED_USER_NO_ID), upload.single('file'), documentChatController.createStreamingChat);
 
 // SEND MESSAGE TO AI IN CHAT
 router.post('/message/sse/:sessionId', authorize(LOGGED_USER_NO_ID), documentChatController.sendMessageToSdkAiWithStreaming);

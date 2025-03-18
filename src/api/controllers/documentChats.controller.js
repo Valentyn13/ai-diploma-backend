@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const DocumentChats = require('../models/documentChats.model');
 const User = require('../models/user.model');
-
+const s3 = require('../../config/s3');
 const {generateMessageForHistory} = require('../../config/llm/helpers');
 const {createSdkApiCall, pdfFileProcessing} = require('../../config/llm/api');
 
@@ -61,10 +61,13 @@ exports.createStreamingChat = async (req, res, next) => {
   const userId = req.query.userId;
 
   const input = req.body.input;
-  const document = req.body.document;
   const chatName = req.body.chatName;
   const category = req.body.category;
   const cachedPath = req.body.cachedPath;
+
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+}
 
   const objectId = new mongoose.Types.ObjectId();
 
@@ -76,10 +79,20 @@ exports.createStreamingChat = async (req, res, next) => {
 
     const userMessageForHistory = generateMessageForHistory('user', input);
 
+
+    const uploadParams = {
+      Bucket: 'pdf-files-for-ai',
+      Key: `pdf/${Date.now()}-${req.file.originalname}`, // Unique file name
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+  };
+
+  const data = await s3.upload(uploadParams).promise();
+
     const chat = await DocumentChats.create({
       _id: objectId,
-      document,
       chatName,
+      document: data.Location,
       category,
       cachedFilePath: cachedPath,
       messages: [userMessageForHistory],

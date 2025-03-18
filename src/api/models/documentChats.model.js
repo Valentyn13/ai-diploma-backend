@@ -61,13 +61,13 @@ documentChatSchema.statics = {
       });
     }
 
-    const chats = await this.find({ userId }, { document: 0 });
+    const chats = await this.find({ userId });
 
     return chats;
   },
 
   async getDocumentChatById(sessionId) {
-    const chat = await this.findById(sessionId, { document: 0 });
+    const chat = await this.findById(sessionId);
     if (!chat) {
       throw new APIError({
         message: `Chat with id ${sessionId} not found`,
