@@ -20,16 +20,6 @@ module.exports = {
     },
   },
 
-  // POST /v1/auth/facebook
-  // POST /v1/auth/google
-  oAuth: {
-    body: {
-      access_token: Joi.string().required(),
-      sex: Joi.string().valid('F', 'M'),
-      categories: Joi.array().items(Joi.string()),
-    },
-  },
-
   // POST /v1/auth/refresh
   refresh: {
     body: {

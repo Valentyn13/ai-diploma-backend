@@ -1,10 +1,8 @@
 const httpStatus = require('http-status');
 const User = require('../models/user.model');
-const FcmToken = require('../models/fcmToken.model');
 const RefreshToken = require('../models/refreshToken.model');
 const moment = require('moment-timezone');
 const {jwtExpirationInterval} = require('../../config/vars');
-const logger = require('../../config/logger');
 
 /**
  * Returns a formated object with tokens
@@ -22,24 +20,6 @@ function generateTokenResponse(user, accessToken) {
   };
 }
 
-async function updateFcm(fcmToken, userId) {
-  try {
-    const findFcm = await FcmToken.find({fcm: fcmToken, userId: userId});
-
-    if (!findFcm || findFcm.length < 1) {
-      logger.info(`adding new fcm for user ${userId}: ${fcmToken}`);
-      const newfcmToken = new FcmToken({
-        userId: userId,
-        fcm: fcmToken,
-      });
-      await newfcmToken.save();
-    } else {
-      logger.info(`found existing fcm for user ${userId}: ${fcmToken}`);
-    }
-  } catch (e) {
-    logger.error(`failed to update fcm for user ${userId}: ${error.toString()}`);
-  }
-}
 /**
  * Returns jwt token if registration was successful
  * @public
@@ -85,29 +65,6 @@ exports.login = async (req, res, next) => {
     return res.json({token, user: userTransformed});
   } catch (error) {
     console.log(error);
-    return next(error);
-  }
-};
-
-/**
- * login with an existing user or creates a new one if valid accessToken token
- * Returns jwt token
- * @public
- */
-exports.oAuth = async (req, res, next) => {
-  try {
-    const {user} = req;
-    const {fcmToken, email} = req.body;
-
-    await updateFcm(fcmToken, user._id);
-
-    const accessToken = user.token();
-    const token = generateTokenResponse(user, accessToken);
-
-    const userTransformed = user.transform();
-
-    return res.json({token, user: userTransformed});
-  } catch (error) {
     return next(error);
   }
 };

@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 const {getChatsByCategory} = require('./aggregations');
-const splitArrayToGroups = require('../../../helpers/splitArrayToGroups');
+const splitArrayToGroups = require('../splitArrayToGroups');
 const {createSdkBatch, checkAndRetrieveBatchData} = require('../../../config/llm/api');
 const SharedCategoryBatch = require('../../models/sharedCategoryBatches');
 const logger = require('../../../config/logger');

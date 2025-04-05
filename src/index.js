@@ -1,10 +1,8 @@
 const {port, env} = require('./config/vars');
-require('./instrument.js');
 const logger = require('./config/logger');
 const app = require('./config/express');
 var cron = require('node-cron');
 const mongoose = require('./config/mongoose');
-const cronfun = require('./api/utils/cronJobs');
 const {sendBatchMessagesCronJob, retrieveAndProcessAllDataCronJob} = require('./api/utils/sharedCategory/cron.js');
 const http = require('http');
 
@@ -35,9 +33,6 @@ http.createServer(app).listen(port, () => {
   } else {
     logger.info('skipping crons in dev env (except manual)');
   }
-  cron.schedule('0 * * * *', () => {
-    cronfun.calculateMeditationChallenge();
-  });
 
   logger.info(`server started on port ${port} (${env} ${process.pid})`);
 });
