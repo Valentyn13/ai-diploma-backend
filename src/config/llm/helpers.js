@@ -1,13 +1,14 @@
-const {INSTRUCTION, BASIC_SYSPROMPT_MESSAGE, PROMPTS} = require('./prompts');
+const { BASIC_SYSPROMPT_MESSAGE, PROMPTS} = require('./prompts');
 
 const generateUserInstruction = (name, gender) => {
-  const userGender = gender === 'M' ? 'MALE' : 'FEMALE';
+  const userGender = gender === 'M' ? 'чоловічим' : 'жіночим';
 
-  return `Now a user with name ${name} and ${userGender} gender speaks to you. Refer to the user by their name in conversation and speak to the user using the appropriate gender pronouns.`;
+  return `Зараз користувач з іменем ${name} і ${userGender} гендером говорить з тобою. Використовую правильне взернення до користувача в залежноті від гендеру.`;
 };
 
 const generateSystemPrompt = (userData, chatType) => {
-  const basePrompt = PROMPTS[chatType] || BASIC_SYSPROMPT_MESSAGE;
+  const categorySysprompt = PROMPTS[chatType] || '';
+  const basePrompt = BASIC_SYSPROMPT_MESSAGE + categorySysprompt;
 
   const prompt = `${basePrompt}\n\n${generateUserInstruction(userData.name, userData.gender)}`;
 
@@ -23,12 +24,11 @@ const generateMessageForHistory = (role, content) => {
 };
 
 const convertHistoryMessagesToText = (historyMessages) => {
-  let str = `Context: The following are previous messages from the user. Use these for context only.\nPrevious messages:\n`;
+  let str = `Context: The following are previous messages in conversation. Use these for context only.\nPrevious messages:\n`;
 
   historyMessages.forEach((message) => {
     str += `${message.role}: ${message.content}.\n `;
   });
-  str += INSTRUCTION;
 
   return str;
 };

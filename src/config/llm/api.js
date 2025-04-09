@@ -21,6 +21,7 @@ const createSdkApiCall = async (
 ) => {
   let newLastCachedIndex = lastCachedMessageIndex;
   let newStartCacheIndex = startCacheMessageIndex;
+
   const sharedCategoryContext = categoriesSummary[chatType] || '';
 
   const sysprompt = generateSystemPrompt(userData, chatType);
@@ -29,48 +30,54 @@ const createSdkApiCall = async (
 
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
-  const {cached, uncached} = historyMessages.slice(calculatedIndex).reduce(
-    (acc, curr, i) => {
-      if (lastCachedMessageIndex === 0) {
-        acc.cached.push(curr);
-        return acc;
-      }
-      if (startCacheMessageIndex === 0) {
-        if (i <= lastCachedMessageIndex) {
-          acc.cached.push(curr);
-        } else {
-          acc.uncached.push(curr);
-        }
-        return acc;
-      }
+  // const {cached, uncached} = historyMessages.slice(calculatedIndex).reduce(
+  //   (acc, curr, i) => {
+  //     if (lastCachedMessageIndex === 0) {
+  //       acc.cached.push(curr);
+  //       return acc;
+  //     }
+  //     if (startCacheMessageIndex === 0) {
+  //       if (i <= lastCachedMessageIndex) {
+  //         acc.cached.push(curr);
+  //       } else {
+  //         acc.uncached.push(curr);
+  //       }
+  //       return acc;
+  //     }
 
-      if (startCacheMessageIndex !== 0) {
-        if (i < lastCachedMessageIndex - startCacheMessageIndex) {
-          acc.cached.push(curr);
-        } else {
-          acc.uncached.push(curr);
-        }
-      }
+  //     if (startCacheMessageIndex !== 0) {
+  //       if (i < lastCachedMessageIndex - startCacheMessageIndex) {
+  //         acc.cached.push(curr);
+  //       } else {
+  //         acc.uncached.push(curr);
+  //       }
+  //     }
 
-      return acc;
-    },
-    {
-      cached: [],
-      uncached: [],
-    },
-  );
+  //     return acc;
+  //   },
+  //   {
+  //     cached: [],
+  //     uncached: [],
+  //   },
+  // );
 
-  const cacheData = convertHistoryMessagesToText(cached);
+  // const cacheData = convertHistoryMessagesToText(cached);
 
-  const uncachedData = convertHistorySdkMessage(uncached);
+  const uncachedData = convertHistorySdkMessage(historyMessages);
 
+  console.log('uncachedData: ', uncachedData);
+  // console.log('cachedData: ', cacheData);
+
+  const fullSysPrompt = `${combinedSystemPrompt}\n`;
+
+  console.log('fullSysPrompt: ', fullSysPrompt);
   const stream = await sdkAnthropicModel.beta.promptCaching.messages.stream({
     model: process.env.CHEAPEST_ANTHROPIC_MODEL,
     max_tokens: 2048,
     system: [
       {
         type: 'text',
-        text: `${combinedSystemPrompt}\n\n${cacheData}\n\n${PROMPT_LIMITATION_PROMPT}`,
+        text: fullSysPrompt,
         cache_control: {type: 'ephemeral'},
       },
     ],
@@ -100,6 +107,8 @@ const createSdkApiCall = async (
   const response = stream.receivedMessages[0];
 
   const aiMessage = response.content[0].text;
+
+  console.log(response.usage)
 
   if (response.usage.cache_creation_input_tokens && lastCachedMessageIndex === 0) {
     newLastCachedIndex = historyMessages.length - 1;

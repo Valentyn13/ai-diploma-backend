@@ -28,7 +28,7 @@ const documentChatSchema = new mongoose.Schema(
     },
     category:{
       type: String,
-      enum: ['general', 'medicine', 'engineering'],
+      enum: ['law', 'medicine', 'engineering'],
       required: true,
     }
   },
