@@ -24,7 +24,4 @@ router.route('/create/sse').post(authorize(LOGGED_USER_NO_ID), upload.single('fi
 // SEND MESSAGE TO AI IN CHAT
 router.post('/message/sse/:sessionId', authorize(LOGGED_USER_NO_ID), documentChatController.sendMessageToSdkAiWithStreaming);
 
-// PROCESS PDF DOCUMENT
-router.post('/process/pdf', documentChatController.processPdfDocument);
-
 module.exports = router;

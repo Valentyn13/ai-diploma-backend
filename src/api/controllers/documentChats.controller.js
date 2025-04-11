@@ -4,23 +4,10 @@ const DocumentChats = require('../models/documentChats.model');
 const User = require('../models/user.model');
 const s3 = require('../../config/s3');
 const {generateMessageForHistory} = require('../../config/llm/helpers');
-const {createSdkApiCall, pdfFileProcessing} = require('../../config/llm/api');
+const {createSdkApiCallWithPDFProcessing} = require('../../config/llm/api');
 
 const validateObjectId = require('../validations/isObjectId');
 const validateChatInput = require('../validations/validateChatInput');
-
-exports.processPdfDocument = async (req, res, next) => {
-  try {
-    const {file} = req.body;
-    console.log(file);
-    // const response = await pdfFileProcessing();
-    return res.status(200).json({
-      Done: true,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
 exports.loadById = async (req, res, next) => {
   const id = req.params.sessionId;
@@ -37,8 +24,16 @@ exports.delete = async (req, res, next) => {
   const sessionId = req.params.sessionId;
   try {
     validateObjectId(sessionId);
+    const chat = await DocumentChats.getDocumentChatById(sessionId);
+    const chatName = chat.document.split('/').pop();
+    const deleteParams = {
+      Bucket: 'pdf-files-for-ai',
+      Key: `pdf/${chatName}`,
+    };
 
-    const chat = await DocumentChats.deleteChat(sessionId);
+    await s3.deleteObject(deleteParams).promise();
+
+    await DocumentChats.deleteChat(sessionId);
 
     return res.status(200).json({deleted: true});
   } catch (error) {
@@ -67,7 +62,7 @@ exports.createStreamingChat = async (req, res, next) => {
 
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
-}
+  }
 
   const objectId = new mongoose.Types.ObjectId();
 
@@ -79,15 +74,14 @@ exports.createStreamingChat = async (req, res, next) => {
 
     const userMessageForHistory = generateMessageForHistory('user', input);
 
-
     const uploadParams = {
       Bucket: 'pdf-files-for-ai',
-      Key: `pdf/${Date.now()}-${req.file.originalname}`, // Unique file name
+      Key: `pdf/${Date.now()}-${req.file.originalname}`,
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
-  };
+    };
 
-  const data = await s3.upload(uploadParams).promise();
+    const data = await s3.upload(uploadParams).promise();
 
     const chat = await DocumentChats.create({
       _id: objectId,
@@ -123,7 +117,8 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
     validateChatInput(input);
 
     const chat = await DocumentChats.getDocumentChatById(sessionId);
-
+    const chatType = chat.category;
+    const documentKey = chat.document.split('/').pop();
     const user = await User.get(chat.userId);
 
     const userData = {
@@ -131,22 +126,18 @@ exports.sendMessageToSdkAiWithStreaming = async (req, res, next) => {
       gender: user.sex,
     };
 
-    // Simulate striming
+    const modelResponse = await createSdkApiCallWithPDFProcessing(
+      userData,
+      documentKey,
+      chat.messages,
+      input,
+      chatType,
+      res,
+    );
+    //
+    const aiMessage = modelResponse.aiMessage;
 
-    const chunks = ['chunk1', 'chunk2', 'chunk3', 'chunk4', 'chunk5'];
-
-    // eslint-disable-next-line no-restricted-syntax
-    for await (const chunk of chunks) {
-      res.write(chunk);
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    }
-
-
-    // const modelResponse = await createSdkApiCall(userData, chat.messages, input, chatType, res);
-
-    // const aiMessage = modelResponse.aiMessage;
-
-    const aiMessageForHistory = generateMessageForHistory('assistant', chunks.join(''));
+    const aiMessageForHistory = generateMessageForHistory('assistant', aiMessage);
     const userMessageForHistory = generateMessageForHistory('user', input);
 
     if (chat.messages.length <= 1) {

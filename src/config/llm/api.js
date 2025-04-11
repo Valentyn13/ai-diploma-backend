@@ -1,12 +1,21 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-case-declarations */
-const fs = require('fs');
-const path = require('path');
 const {sdkAnthropicModel} = require('./models');
-const {SUMMARIZE_PROMPT, TRANSCRIPT_PROMPT, PROMPT_LIMITATION_PROMPT} = require('./prompts');
-const {convertHistorySdkMessage, generateSystemPrompt, convertHistoryMessagesToText} = require('./helpers');
+const {
+  SUMMARIZE_PROMPT,
+  TRANSCRIPT_PROMPT,
+  PROMPT_LIMITATION_PROMPT,
+  generateDocumentChatSysPrompt,
+} = require('./prompts');
+const {
+  convertHistorySdkMessage,
+  generateSystemPrompt,
+  convertHistoryMessagesToText,
+  generateUserInstruction,
+} = require('./helpers');
 const UserInsight = require('../../api/models/userInsight.model');
 const SharedCategoryBatch = require('../../api/models/sharedCategoryBatches');
+const s3 = require('../s3');
 
 const createSdkApiCall = async (
   userData,
@@ -30,45 +39,45 @@ const createSdkApiCall = async (
 
   const calculatedIndex = startCacheMessageIndex !== 0 ? startCacheMessageIndex + 1 : 0;
 
-  // const {cached, uncached} = historyMessages.slice(calculatedIndex).reduce(
-  //   (acc, curr, i) => {
-  //     if (lastCachedMessageIndex === 0) {
-  //       acc.cached.push(curr);
-  //       return acc;
-  //     }
-  //     if (startCacheMessageIndex === 0) {
-  //       if (i <= lastCachedMessageIndex) {
-  //         acc.cached.push(curr);
-  //       } else {
-  //         acc.uncached.push(curr);
-  //       }
-  //       return acc;
-  //     }
+  const {cached, uncached} = historyMessages.slice(calculatedIndex).reduce(
+    (acc, curr, i) => {
+      if (lastCachedMessageIndex === 0) {
+        acc.cached.push(curr);
+        return acc;
+      }
+      if (startCacheMessageIndex === 0) {
+        if (i <= lastCachedMessageIndex) {
+          acc.cached.push(curr);
+        } else {
+          acc.uncached.push(curr);
+        }
+        return acc;
+      }
 
-  //     if (startCacheMessageIndex !== 0) {
-  //       if (i < lastCachedMessageIndex - startCacheMessageIndex) {
-  //         acc.cached.push(curr);
-  //       } else {
-  //         acc.uncached.push(curr);
-  //       }
-  //     }
+      if (startCacheMessageIndex !== 0) {
+        if (i < lastCachedMessageIndex - startCacheMessageIndex) {
+          acc.cached.push(curr);
+        } else {
+          acc.uncached.push(curr);
+        }
+      }
 
-  //     return acc;
-  //   },
-  //   {
-  //     cached: [],
-  //     uncached: [],
-  //   },
-  // );
+      return acc;
+    },
+    {
+      cached: [],
+      uncached: [],
+    },
+  );
 
-  // const cacheData = convertHistoryMessagesToText(cached);
+  const cacheData = convertHistoryMessagesToText(cached);
 
-  const uncachedData = convertHistorySdkMessage(historyMessages);
+  const uncachedData = convertHistorySdkMessage(uncached);
 
   console.log('uncachedData: ', uncachedData);
-  // console.log('cachedData: ', cacheData);
+  console.log('cachedData: ', cacheData);
 
-  const fullSysPrompt = `${combinedSystemPrompt}\n`;
+  const fullSysPrompt = `${combinedSystemPrompt}\n${cacheData}\n\n${PROMPT_LIMITATION_PROMPT}`;
 
   console.log('fullSysPrompt: ', fullSysPrompt);
   const stream = await sdkAnthropicModel.beta.promptCaching.messages.stream({
@@ -108,7 +117,7 @@ const createSdkApiCall = async (
 
   const aiMessage = response.content[0].text;
 
-  console.log(response.usage)
+  console.log(response.usage);
 
   if (response.usage.cache_creation_input_tokens && lastCachedMessageIndex === 0) {
     newLastCachedIndex = historyMessages.length - 1;
@@ -118,6 +127,84 @@ const createSdkApiCall = async (
   }
 
   return {aiMessage, newLastCachedIndex, newStartCacheIndex};
+};
+
+const createSdkApiCallWithPDFProcessing = async (userData, documentKey, historyMessages, input, chatType, res) => {
+  const messages = convertHistorySdkMessage(historyMessages);
+
+  const data = await s3
+    .getObject({
+      Bucket: 'pdf-files-for-ai',
+      Key: `pdf/${documentKey}`,
+    })
+    .promise();
+
+  const pdfBase64 = data.Body.toString('base64');
+
+  const userInstructions = generateUserInstruction(userData.name, userData.sex);
+
+  const contextPromptPart = generateDocumentChatSysPrompt(chatType);
+
+  const sysprompt = `${contextPromptPart}\n\n${userInstructions}`;
+  console.log('sysprompt: ', sysprompt);
+  const stream = await sdkAnthropicModel.beta.promptCaching.messages.stream({
+    model: process.env.CHEAPEST_ANTHROPIC_MODEL,
+    max_tokens: 1024,
+    stream: true,
+    system: [
+      {
+        type: 'text',
+        text: sysprompt,
+        cache_control: {type: 'ephemeral'},
+      },
+    ],
+    messages: [
+      {
+        content: [
+          {
+            type: 'document',
+            source: {
+              media_type: 'application/pdf',
+              type: 'base64',
+              data: pdfBase64,
+            },
+            cache_control: {type: 'ephemeral'},
+          },
+        ],
+        role: 'user',
+      },
+      ...messages,
+      {
+        role: 'user',
+        content: input,
+      },
+    ],
+  });
+
+  let numTokensReceived = 0;
+  let savedData = '';
+
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const messageStreamEvent of stream) {
+    if (messageStreamEvent.type === 'content_block_delta') {
+      ++numTokensReceived;
+      savedData += messageStreamEvent.delta.text;
+
+      if (numTokensReceived >= 4) {
+        res.write(savedData);
+        numTokensReceived = 0;
+        savedData = '';
+      }
+    }
+    if (messageStreamEvent.type === 'content_block_stop') {
+      res.write(savedData);
+    }
+  }
+  const response = stream.receivedMessages[0];
+  console.log('response: ', response.usage);
+  const aiMessage = response.content[0].text;
+
+  return {aiMessage};
 };
 
 const createSummarization = async (messages) => {
@@ -255,41 +342,8 @@ const checkAndRetrieveBatchData = async (batches) => {
   }
 };
 
-const pdfFileProcessing = async () => {
-
-  const file = fs.readFileSync(path.join(__dirname, 'cv2.pdf'));
-  const pdfBase64 = Buffer.from(file).toString('base64');
-
-  const response = await sdkAnthropicModel.messages.create({
-    model: process.env.CHEAPEST_ANTHROPIC_MODEL,
-    max_tokens: 1024,
-    messages: [
-      {
-        content: [
-          {
-            type: 'document',
-            source: {
-              media_type: 'application/pdf',
-              type: 'base64',
-              data: pdfBase64,
-            },
-          },
-          {
-            type: 'text',
-            text: 'Describe shortly the content of the document',
-          },
-        ],
-        role: 'user',
-      },
-    ],
-  });
-  console.log(response);
-
-  return response;
-};
-
 module.exports = {
-  pdfFileProcessing,
+  createSdkApiCallWithPDFProcessing,
   createSdkApiCall,
   createSummarization,
   createSdkBatch,

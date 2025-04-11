@@ -43,6 +43,7 @@ const convertHistorySdkMessage = (historyMessages) => {
 };
 
 module.exports = {
+  generateUserInstruction,
   generateSystemPrompt,
   generateMessageForHistory,
   convertHistoryMessagesToText,
